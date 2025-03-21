@@ -1,0 +1,76 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: hiramabiff_app
+    restart: unless-stopped
+    volumes:
+      - .:/app
+      - ./logs:/app/logs
+    ports:
+      - "8000:8000"
+    environment:
+      - APP_ENV=development
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=5432
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=hiramabiff
+      - MONGO_URI=mongodb://mongo:27017/hiramabiff
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    depends_on:
+      - postgres
+      - redis
+      - mongo
+    networks:
+      - hiramabiff_network
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: hiramabiff_postgres
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=hiramabiff
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - hiramabiff_network
+
+  mongo:
+    image: mongo:6
+    container_name: hiramabiff_mongo
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - hiramabiff_network
+
+  redis:
+    image: redis:7-alpine
+    container_name: hiramabiff_redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - hiramabiff_network
+
+networks:
+  hiramabiff_network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  mongo_data:
+  redis_data: 
