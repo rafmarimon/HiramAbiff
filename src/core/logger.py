@@ -10,8 +10,6 @@ from typing import Any, Dict, Optional
 
 from loguru import logger
 
-from .config import settings
-
 
 class InterceptHandler(logging.Handler):
     """
@@ -41,12 +39,27 @@ class InterceptHandler(logging.Handler):
         )
 
 
-def setup_logging() -> None:
+def setup_logging(log_level: str = "INFO") -> None:
     """
     Configures logging for the application.
+    
+    Args:
+        log_level: The logging level to use (DEBUG, INFO, WARNING, ERROR, CRITICAL)
     """
+    # Get log level from environment or use provided default
+    log_level = os.environ.get("LOG_LEVEL", log_level).upper()
+    
     # Create logs directory if it doesn't exist
-    log_dir = settings.BASE_DIR / "logs"
+    # First try to find the project root
+    current_file = Path(__file__)
+    if "src" in current_file.parts:
+        # If we're in a src directory, assume project root is two levels up
+        project_root = current_file.parent.parent.parent
+    else:
+        # Otherwise use the current directory
+        project_root = Path.cwd()
+    
+    log_dir = project_root / "logs"
     log_dir.mkdir(exist_ok=True)
 
     # Intercept standard logging
@@ -60,9 +73,6 @@ def setup_logging() -> None:
         "<level>{message}</level>"
     )
 
-    # Get log level from settings
-    log_level = settings.LOG_LEVEL.upper()
-
     # Configure loguru loggers
     config = {
         "handlers": [
@@ -73,7 +83,7 @@ def setup_logging() -> None:
                 "colorize": True,
             },
             {
-                "sink": log_dir / f"hiramabiff_{settings.APP_ENV}.log",
+                "sink": log_dir / "hiramabiff.log",
                 "format": log_format,
                 "level": log_level,
                 "rotation": "100 MB",
@@ -91,14 +101,26 @@ def setup_logging() -> None:
     for logger_name in logging.root.manager.loggerDict:
         logging.getLogger(logger_name).handlers = [InterceptHandler()]
 
-    # Custom logging for MongoDB, Uvicorn, etc.
+    # Custom logging for common libraries
     for _log in ["uvicorn", "uvicorn.access", "uvicorn.error", "fastapi"]:
-        logging.getLogger(_log).handlers = [InterceptHandler()]
-        logging.getLogger(_log).propagate = False
+        _logger = logging.getLogger(_log)
+        if _logger:  # Check if logger exists
+            _logger.handlers = [InterceptHandler()]
+            _logger.propagate = False
 
-    # Add console logger as default
+    # Log initialization
     logger.info(f"Logging initialized. Level: {log_level}")
 
 
-# Initialize logging when module is imported
-setup_logging() 
+# Add a convenience function to get a logger
+def get_logger(name: str) -> logger:
+    """
+    Get a logger instance with the specified name.
+    
+    Args:
+        name: The name for the logger
+        
+    Returns:
+        A logger instance
+    """
+    return logger.bind(name=name) 
