@@ -1,108 +1,110 @@
-# HiramAbiff: Chain-Agnostic DeFi Agent
+# HiramAbiff
 
-HiramAbiff is an autonomous AI agent that analyzes DeFi opportunities across multiple blockchains with a focus on Solana. Built entirely on open source technology, it collects data, executes trades, provides reports, and continually improves itself through ML algorithms and agent collaboration, all while maintaining the highest security standards.
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-## Vision
+## Chain-agnostic DeFi agent with a focus on Solana
 
-A secure, self-evolving DeFi agent that maximizes returns by leveraging Solana's speed and low fees while maintaining visibility across the entire crypto landscape with enterprise-grade security, built on a foundation of open source technologies.
+HiramAbiff is an intelligent multi-agent system designed to analyze and execute DeFi opportunities across multiple blockchains, with a particular focus on the Solana ecosystem. The project leverages data aggregation from services like DeFi Llama to identify optimal yields and trading strategies.
 
-## Key Features
+## Features
 
-- **Multi-Chain Data Aggregation**: DeFiLlama integration, cross-chain analytics, protocol discovery
-- **Advanced Trading Capabilities**: Automated execution, optimal routing, cross-chain bridging
-- **Machine Learning & Analysis**: Yield prediction, risk assessment, portfolio optimization
-- **Autonomous Operation**: Self-maintenance, error recovery, 24/7 operation
-- **Agent Collaboration**: Specialized agent network for research, trading, and risk assessment
-- **Self-Improvement**: Performance analysis, model retraining, strategy evolution
-- **Enterprise-Grade Security**: Threat detection, multi-sig wallets, contingency plans
-
-## Getting Started
-
-### Prerequisites
-
-- Python 3.10+
-- Rust (for Solana program development)
-- Node.js 18+ (for Web3.js integration)
-- Docker & Docker Compose
-
-### Installation
-
-1. Clone the repository:
-   ```
-   git clone https://github.com/yourusername/HiramAbiff.git
-   cd HiramAbiff
-   ```
-
-2. Create a virtual environment:
-   ```
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
-
-3. Install dependencies:
-   ```
-   pip install -r requirements.txt
-   ```
-
-4. Set up environment variables:
-   ```
-   cp .env.example .env
-   # Edit .env file with your API keys and configuration
-   ```
-
-5. Run the development server:
-   ```
-   python src/app.py
-   ```
+- **Chain-agnostic Architecture**: Works across multiple blockchains with a focus on Solana
+- **Multi-agent Collaboration**: Specialized agents work together to achieve complex tasks
+- **Data Aggregation**: Fetches and analyzes data from DeFi Llama and other sources
+- **Opportunity Detection**: Identifies high-yield opportunities based on customizable criteria
+- **Simulated Trade Execution**: Safely tests strategies before committing real funds
+- **Extensible Framework**: Easily add new agents, data sources, and execution methods
 
 ## Project Structure
 
 ```
 HiramAbiff/
-├── docs/                     # Documentation
-├── src/                      # Source code
-│   ├── agents/               # Agent implementations
-│   ├── blockchain/           # Blockchain integrations
-│   ├── core/                 # Core system components
-│   ├── data/                 # Data processing and storage
-│   ├── models/               # ML models
-│   ├── security/             # Security features
-│   └── web/                  # Web interface
-├── tests/                    # Test suite
-├── .env.example              # Example environment variables
-├── docker-compose.yml        # Docker configuration
-├── requirements.txt          # Python dependencies
-└── README.md                 # Project documentation
+├── examples/                # Example scripts demonstrating usage
+├── src/
+│   ├── agents/             # Agent implementations
+│   │   ├── base_agent.py   # Base agent class
+│   │   ├── defi_agent.py   # DeFi opportunity finder
+│   │   └── trading_agent.py # Trade execution agent
+│   ├── blockchain/         # Blockchain connectivity
+│   │   └── solana_client.py # Solana client implementation
+│   ├── core/               # Core functionality
+│   │   ├── config.py       # Configuration handling
+│   │   └── logger.py       # Logging setup
+│   ├── data/               # Data sources
+│   │   └── defillama.py    # DeFi Llama integration
+│   └── app.py              # Main application entry point
+├── .env.example            # Example environment variables
+├── .gitignore              # Git ignore file
+├── Dockerfile              # Docker configuration
+├── docker-compose.yml      # Docker Compose configuration
+└── requirements.txt        # Python dependencies
 ```
 
-## Contributing
+## Getting Started
 
-We welcome contributions from the community! Please check our [Contributing Guide](./CONTRIBUTING.md) for more information.
+### Prerequisites
 
-## Security
+- Python 3.9+
+- Pip package manager
+- Git
 
-Security is a top priority for HiramAbiff. We implement various security measures:
+### Installation
 
-- Real-time transaction monitoring
-- Multi-signature wallets for high-value transactions
-- Automated rollback mechanisms
-- Regular security audits
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/rafmarimon/HiramAbiff.git
+   cd HiramAbiff
+   ```
 
-See our [Security Policy](./SECURITY.md) for details.
+2. Create a virtual environment:
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
+
+3. Install dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+4. Set up environment variables:
+   ```bash
+   cp .env.example .env
+   # Edit .env with your API keys and configuration
+   ```
+
+### Running Examples
+
+Check out the examples directory for ready-to-run demonstrations:
+
+```bash
+# Run the DeFi agent example
+python examples/defi_agent_example.py
+
+# Run the agent collaboration example
+python examples/agent_collaboration_example.py
+```
+
+## Development
+
+### Adding a New Agent
+
+1. Create a new agent class that extends `BaseAgent`
+2. Implement the required methods, especially `run()`
+3. Add any agent-specific functionality
+4. See `defi_agent.py` and `trading_agent.py` for examples
+
+### Adding New Data Sources
+
+1. Create a new module in the `data` directory
+2. Implement methods to fetch and process data
+3. Update existing agents or create new ones to utilize the data
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](./LICENSE) file for details.
+This project is licensed under the MIT License - see the LICENSE file for details.
 
 ## Acknowledgments
 
-HiramAbiff is built using numerous open source projects, including:
-- Solana Web3.js
-- Anchor
-- TensorFlow
-- FastAPI
-- PostgreSQL
-- Redis
-- Kubernetes
-- Mythril
-- ELK Stack 
+- DeFi Llama for their comprehensive DeFi data
+- The Solana community for their extensive documentation and tools 
