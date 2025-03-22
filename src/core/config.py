@@ -33,7 +33,7 @@ class Settings(BaseSettings):
     LOG_LEVEL: str = "INFO"
     
     # Security Settings
-    SECRET_KEY: str
+    SECRET_KEY: str = "HIRAMABIFF_DEVELOPMENT_SECRET_KEY_REPLACE_IN_PRODUCTION"
     JWT_ALGORITHM: str = "HS256"
     JWT_EXPIRATION: int = 86400
     CORS_ORIGINS: Union[str, List[str]] = ["http://localhost:3000", "http://localhost:8000"]
@@ -45,51 +45,58 @@ class Settings(BaseSettings):
             return [i.strip() for i in v.split(",")]
         return v
     
-    # Database Settings
-    POSTGRES_HOST: str
-    POSTGRES_PORT: str
-    POSTGRES_DB: str
-    POSTGRES_USER: str
-    POSTGRES_PASSWORD: str
+    # Database Settings - Optional for examples
+    POSTGRES_HOST: str = "localhost"
+    POSTGRES_PORT: str = "5432"
+    POSTGRES_DB: str = "hiramabiff"
+    POSTGRES_USER: str = "postgres"
+    POSTGRES_PASSWORD: str = "postgres"
     POSTGRES_URI: Optional[PostgresDsn] = None
     
     @model_validator(mode="after")
     def assemble_postgres_uri(self) -> "Settings":
-        self.POSTGRES_URI = PostgresDsn.build(
-            scheme="postgresql",
-            username=self.POSTGRES_USER,
-            password=self.POSTGRES_PASSWORD,
-            host=self.POSTGRES_HOST,
-            port=self.POSTGRES_PORT,
-            path=f"{self.POSTGRES_DB}",
-        )
+        if all([self.POSTGRES_HOST, self.POSTGRES_PORT, self.POSTGRES_DB, 
+                self.POSTGRES_USER, self.POSTGRES_PASSWORD]):
+            try:
+                self.POSTGRES_URI = PostgresDsn.build(
+                    scheme="postgresql",
+                    username=self.POSTGRES_USER,
+                    password=self.POSTGRES_PASSWORD,
+                    host=self.POSTGRES_HOST,
+                    port=self.POSTGRES_PORT,
+                    path=f"{self.POSTGRES_DB}",
+                )
+            except Exception:
+                # If URI can't be built (e.g., invalid credentials), leave as None
+                pass
         return self
     
-    # MongoDB Settings
-    MONGO_URI: str
+    # MongoDB Settings - Optional for examples
+    MONGO_URI: str = "mongodb://localhost:27017/hiramabiff"
     
-    # Redis Settings
-    REDIS_HOST: str
-    REDIS_PORT: int
-    REDIS_DB: int
+    # Redis Settings - Optional for examples
+    REDIS_HOST: str = "localhost"
+    REDIS_PORT: int = 6379
+    REDIS_DB: int = 0
     REDIS_PASSWORD: Optional[str] = None
+    REDIS_ENABLED: bool = False  # Set to True to enable Redis
     
     # Blockchain API Keys
     # Solana
-    SOLANA_RPC_URL: str
-    SOLANA_RPC_URL_TESTNET: str
-    SOLANA_RPC_URL_DEVNET: str
+    SOLANA_RPC_URL: str = "https://api.mainnet-beta.solana.com"
+    SOLANA_RPC_URL_TESTNET: str = "https://api.testnet.solana.com"
+    SOLANA_RPC_URL_DEVNET: str = "https://api.devnet.solana.com"
     
     # Ethereum
-    ETHEREUM_RPC_URL: str
-    ETHEREUM_RPC_URL_TESTNET: str
+    ETHEREUM_RPC_URL: str = "https://eth-mainnet.g.alchemy.com/v2/demo"
+    ETHEREUM_RPC_URL_TESTNET: str = "https://eth-sepolia.g.alchemy.com/v2/demo"
     
     # DeFi Data Sources
-    DEFILLAMA_API_URL: str
+    DEFILLAMA_API_URL: str = "https://yields.llama.fi"
     DEFILLAMA_API_KEY: Optional[str] = None
     
     # ML Model Settings
-    MODEL_STORAGE_PATH: str
+    MODEL_STORAGE_PATH: str = str(BASE_DIR / "models")
     MODEL_RETRAIN_INTERVAL: int = 86400
     
     # Agent Settings

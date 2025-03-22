@@ -2,219 +2,111 @@
 """
 Solana Testnet Example
 
-This script demonstrates basic interactions with the Solana testnet using the HiramAbiff system.
+This script demonstrates how to interact with the Solana testnet using the HiramAbiff framework.
+It shows basic operations like creating a wallet, checking balance, and simulating a transaction.
 """
 
-import asyncio
-import json
 import os
-import sys
+import asyncio
+import secrets
+import base58
 from pathlib import Path
-
-# Add the project root to the Python path
-project_root = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(project_root))
-
 from loguru import logger
-from solana.publickey import PublicKey
-from solana.rpc.types import TokenAccountOpts
-from solana.transaction import Transaction, TransactionInstruction
+import httpx
 
-from src.blockchain.solana_client import SolanaClientManager, NetworkType
-from src.blockchain.wallet import wallet_manager
-from src.core.logger import setup_logging
+# Solana imports
+from solders.keypair import Keypair
+from solders.pubkey import Pubkey
+from solders.transaction import Transaction
+from solders.message import Message
+from solders.instruction import Instruction, AccountMeta
+from solders.system_program import transfer, TransferParams
+from solana.rpc.async_api import AsyncClient
+from solana.rpc.commitment import Confirmed
+from solana.exceptions import SolanaRpcException
 
-
-async def get_network_info(client_manager):
-    """
-    Get basic information about the Solana network.
-    
-    Args:
-        client_manager: The Solana client manager
-    """
-    logger.info("Fetching network information...")
-    
-    # Get the version of the Solana node
-    version = await client_manager.async_client.get_version()
-    if "result" in version:
-        logger.info(f"Solana version: {version['result']['solana-core']}")
-    
-    # Get the latest blockhash
-    blockhash = await client_manager.async_client.get_recent_blockhash()
-    if "result" in blockhash:
-        logger.info(f"Recent blockhash: {blockhash['result']['value']['blockhash']}")
-    
-    # Get the current slot
-    slot = await client_manager.async_client.get_slot()
-    if "result" in slot:
-        logger.info(f"Current slot: {slot['result']}")
-    
-    # Get the current leader
-    leader = await client_manager.async_client.get_slot_leader()
-    if "result" in leader:
-        logger.info(f"Current slot leader: {leader['result']}")
-    
-    logger.info("Network information fetched")
-
-
-async def explore_wallet(client_manager, wallet_name):
-    """
-    Explore a wallet's details on the Solana testnet.
-    
-    Args:
-        client_manager: The Solana client manager
-        wallet_name: Name of the wallet to explore
-    """
-    # Get the wallet keypair
-    keypair = wallet_manager.get_wallet(wallet_name)
-    if not keypair:
-        logger.error(f"Wallet '{wallet_name}' not found")
-        return
-    
-    pubkey = keypair.public_key
-    logger.info(f"Exploring wallet: {wallet_name} ({pubkey})")
-    
-    # Get SOL balance
-    balance = await client_manager.get_balance_async(pubkey)
-    logger.info(f"SOL Balance: {balance} SOL")
-    
-    # Get token accounts
-    token_accounts = await client_manager.get_token_accounts_async(pubkey)
-    logger.info(f"Found {len(token_accounts)} token accounts")
-    
-    for account in token_accounts:
-        pubkey_str = account["pubkey"]
-        account_data = account["account"]["data"]
-        
-        # For token accounts, data is encoded in "mint" and "owner" fields
-        logger.info(f"Token Account: {pubkey_str}")
-        
-        # You would typically decode the token account data here
-        # But for simplicity, we'll just log the raw data
-        logger.info(f"  Program: {account['account']['owner']}")
-        
-    # Get transaction history
-    # Note: This is simplified and would need more work for a complete history
-    logger.info("Recent transactions for this wallet:")
-    signatures = await client_manager.async_client.get_signatures_for_address(pubkey, limit=5)
-    
-    if "result" in signatures:
-        for sig_info in signatures["result"]:
-            sig = sig_info["signature"]
-            slot = sig_info["slot"]
-            err = sig_info.get("err")
-            status = "Failed" if err else "Success"
-            
-            logger.info(f"  Tx: {sig[:10]}...{sig[-10:]} | Slot: {slot} | Status: {status}")
-    else:
-        logger.info("  No transactions found")
-
-
-async def example_transfer(client_manager, from_wallet, to_wallet, amount_sol):
-    """
-    Example of transferring SOL between wallets.
-    
-    Args:
-        client_manager: The Solana client manager
-        from_wallet: Name of the source wallet
-        to_wallet: Name of the destination wallet
-        amount_sol: Amount of SOL to transfer
-    
-    Returns:
-        bool: True if the transfer was successful, False otherwise
-    """
-    # This is just a simulation for educational purposes
-    # In a real application, you would properly construct and send the transaction
-    
-    # Get the wallet keypairs
-    from_keypair = wallet_manager.get_wallet(from_wallet)
-    if not from_keypair:
-        logger.error(f"Source wallet '{from_wallet}' not found")
-        return False
-    
-    to_pubkey = None
-    to_wallet_obj = wallet_manager.get_wallet(to_wallet)
-    if to_wallet_obj:
-        to_pubkey = to_wallet_obj.public_key
-    else:
-        # Assume to_wallet is a public key string
-        try:
-            to_pubkey = PublicKey(to_wallet)
-        except Exception as e:
-            logger.error(f"Invalid destination wallet: {e}")
-            return False
-    
-    # Convert SOL to lamports
-    amount_lamports = int(amount_sol * 10**9)
-    
-    logger.info(f"Preparing to transfer {amount_sol} SOL from {from_wallet} to {to_pubkey}")
-    
-    # Check if the source has enough SOL
-    from_balance = await client_manager.get_balance_async(from_keypair.public_key)
-    if from_balance < amount_sol:
-        logger.error(f"Insufficient balance: {from_balance} SOL")
-        return False
-    
-    # Get recent blockhash
-    blockhash_resp = await client_manager.async_client.get_recent_blockhash()
-    if "result" not in blockhash_resp:
-        logger.error("Failed to get recent blockhash")
-        return False
-    
-    recent_blockhash = blockhash_resp["result"]["value"]["blockhash"]
-    
-    # Create a transfer instruction
-    # Note: In a real application, you would use the System Program to create this
-    logger.info("Creating transfer transaction (simulated)")
-    logger.info(f"  From: {from_keypair.public_key}")
-    logger.info(f"  To: {to_pubkey}")
-    logger.info(f"  Amount: {amount_sol} SOL ({amount_lamports} lamports)")
-    logger.info(f"  Recent blockhash: {recent_blockhash}")
-    
-    # We're not actually sending this transaction, just simulating it
-    return True
-
+# Set up logging
+logger.add("solana_example.log", rotation="10 MB")
 
 async def main():
-    """Main function for the example."""
-    logger.info("Starting Solana Testnet Example")
+    """Run the Solana testnet example."""
+    logger.info("Starting Solana testnet example")
     
-    # Initialize Solana client for testnet
-    client_manager = SolanaClientManager(network_type=NetworkType.TESTNET)
-    logger.info(f"Initialized Solana client for {NetworkType.TESTNET}")
+    # Connect to Solana testnet
+    url = "https://api.testnet.solana.com"
+    client = AsyncClient(url, commitment=Confirmed)
+    logger.info(f"Connected to Solana testnet at {url}")
     
     try:
-        # Get basic network information
-        await get_network_info(client_manager)
+        # Generate a new wallet keypair
+        seed = secrets.token_bytes(32)
+        keypair = Keypair.from_seed(bytes(seed))
+        public_key = keypair.pubkey()
         
-        # Create a new test wallet if needed
-        test_wallet = wallet_manager.get_wallet("test")
-        if not test_wallet:
-            logger.info("Creating new test wallet")
-            test_pubkey, _ = wallet_manager.create_wallet("test")
-            logger.info(f"Created test wallet with public key: {test_pubkey}")
-        else:
-            test_pubkey = str(test_wallet.public_key)
-            logger.info(f"Loaded existing test wallet: {test_pubkey}")
+        # Convert private key to base58 for display (this is the format used in wallet files)
+        private_key_bytes = keypair.secret()
+        private_key_b58 = base58.b58encode(private_key_bytes).decode('ascii')
         
-        # Explore the wallet details
-        await explore_wallet(client_manager, "test")
+        logger.info(f"Generated new wallet with public key: {public_key}")
+        logger.info(f"Private key (base58): {private_key_b58}")
         
-        # Simulate a transfer (not actually sending)
-        # Replace these with your actual wallet names or addresses
-        await example_transfer(client_manager, "test", "GKNcUmNacSJo4S2Kq3DuYRYRGw3sNUfJ4tyqd198t6vQ", 0.01)
+        # Check account balance
+        balance_response = await client.get_balance(public_key)
+        balance = balance_response.value
+        logger.info(f"Account balance: {balance} lamports")
         
-        logger.info("Example completed. Note that no actual transactions were sent.")
-        logger.info("This was just a simulation for educational purposes.")
-    
+        # Get network information
+        version = await client.get_version()
+        logger.info(f"Solana version: {version}")
+        
+        recent_blockhash_response = await client.get_latest_blockhash()
+        blockhash = recent_blockhash_response.value.blockhash
+        logger.info(f"Recent blockhash: {blockhash}")
+        
+        # Simulate a transfer (won't actually send since we have 0 balance)
+        recipient_pubkey = Pubkey.find_program_address([b"recipient"], Pubkey(bytes([0]*32)))[0]
+        logger.info(f"Simulating transfer to: {recipient_pubkey}")
+        
+        # Create transfer instruction
+        transfer_ix = transfer(
+            TransferParams(
+                from_pubkey=public_key,
+                to_pubkey=recipient_pubkey,
+                lamports=1000
+            )
+        )
+        
+        # Create a message containing our instruction
+        message = Message([transfer_ix], public_key)
+        
+        # Create a transaction with the message
+        transaction = Transaction([keypair], message, blockhash)
+        
+        # Note: In a real application with sufficient balance, we would send the transaction:
+        # signature = await client.send_transaction(transaction)
+        logger.info("Transfer transaction created (not sent due to 0 balance)")
+        
+        # Get some testnet accounts to demonstrate querying - with rate limiting error handling
+        try:
+            largest_accounts = await client.get_largest_accounts()
+            if largest_accounts and largest_accounts.value:
+                logger.info(f"Largest account: {largest_accounts.value[0].address} with {largest_accounts.value[0].lamports} lamports")
+        except (SolanaRpcException, httpx.HTTPStatusError) as e:
+            if "429" in str(e):
+                logger.warning("Rate limit exceeded when trying to fetch largest accounts. This is normal with public RPC endpoints.")
+            else:
+                logger.error(f"Error fetching largest accounts: {str(e)}")
+        
+        logger.info("Example completed successfully!")
+        
+    except Exception as e:
+        logger.error(f"Error in Solana example: {str(e)}")
+        import traceback
+        logger.error(traceback.format_exc())
     finally:
-        # Close the client connections
-        client_manager.close()
-
+        # Close the client connection
+        await client.close()
+        logger.info("Solana example completed")
 
 if __name__ == "__main__":
-    # Set up logging
-    setup_logging()
-    
-    # Run the example
     asyncio.run(main()) 
