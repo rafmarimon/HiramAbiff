@@ -17,6 +17,7 @@ HiramAbiff is an intelligent multi-agent system designed to analyze and execute 
 - **Data Visualization**: Creates beautiful charts and graphs for token analysis and comparison
 - **LLM-Powered Insights**: Uses large language models to generate investment analyses
 - **Extensible Framework**: Easily add new agents, data sources, and execution methods
+- **Alchemy Integration**: Direct access to Solana blockchain data via Alchemy's robust APIs
 
 ## Project Structure
 
@@ -29,17 +30,25 @@ HiramAbiff/
 │   ├── agents/          # Agent implementations
 │   ├── analysis/        # Token analysis and visualization
 │   ├── blockchain/      # Blockchain connectors
+│   │   ├── solana_client.py  # Solana blockchain client 
+│   │   └── wallet.py        # Wallet management for multiple chains
 │   ├── core/            # Core utilities
 │   ├── data/            # Data management
-│   └── api/             # API interfaces
+│   ├── services/        # Service integrations
+│   │   ├── market_data.py   # Cryptocurrency market data service
+│   │   └── ai_analysis.py   # AI-powered market analysis
+│   └── web/             # Web dashboard and API
 ├── tests/               # Tests
 ├── tools/               # Development tools
 ├── .env.example         # Example environment variables
 ├── CONTRIBUTING.md      # Contribution guidelines
 ├── LICENSE              # License information
 ├── NEXT_STEPS.md        # Future roadmap
+├── PROJECT_SUMMARY.md   # Project summary and roadmap
 ├── README.md            # This file
 ├── requirements.txt     # Production dependencies
+├── simple_dashboard.py  # Main dashboard application
+├── test_alchemy_integration.py # Alchemy API integration test
 └── requirements-dev.txt # Development dependencies
 ```
 
@@ -76,22 +85,41 @@ HiramAbiff/
    ```
    Then edit the `.env` file to add your own API keys and settings.
 
-5. Verify your setup with the dependency checker:
+5. Set up required API keys:
+   - **OpenAI API Key**: For AI-powered market analysis
+   - **Alchemy API Key**: For enhanced Solana blockchain access
+   - **Solana RPC URL**: For direct blockchain data access
+
+6. Verify your setup with the dependency checker:
    ```bash
    python tools/check_dependencies.py
    ```
 
 ### Quick Start
 
-Run the minimal DeFi agent example:
+Run the dashboard application:
 
 ```bash
-python examples/minimal_defi_agent.py
+python simple_dashboard.py
 ```
 
-This will simulate fetching and analyzing yield farming opportunities across different blockchains.
+This will start the HiramAbiff Dashboard at http://localhost:8890/dashboard/
 
-You can also use the command-line interface:
+The dashboard features:
+- Real-time market data for top 15 cryptocurrencies
+- Solana network statistics (TPS, latest slot)
+- Price history charts and price change comparisons
+- Market cap distribution visualization
+- AI-powered market analysis reports (requires OpenAI API key)
+- Auto-refresh functionality that updates data every 5 minutes
+
+You can also test the Alchemy API integration:
+
+```bash
+python test_alchemy_integration.py
+```
+
+For other functionality, use the command-line interface:
 
 ```bash
 # Find yield opportunities
@@ -126,45 +154,33 @@ For more examples, see the [examples directory](examples/).
 - [Data Visualization](docs/VISUALIZATION.md): Guide to creating charts and graphs
 - [LLM Analysis](docs/LLM_ANALYSIS.md): Guide to using LLM-powered insights
 - [CLI Reference](docs/CLI_REFERENCE.md): Detailed CLI command reference
+- [Alchemy Integration](docs/ALCHEMY_INTEGRATION.md): Guide to using Alchemy's Solana APIs
+
+## Alchemy Integration
+
+HiramAbiff now features robust integration with Alchemy's Solana API, providing several benefits:
+
+- **Enhanced Reliability**: Access to Solana's blockchain with industry-leading uptime
+- **Performance**: Faster RPC responses compared to public endpoints
+- **Advanced Features**: Access to Alchemy-specific enhanced APIs
+- **Reduced Rate Limiting**: Higher rate limits for production applications
+
+To use the Alchemy integration:
+
+1. Sign up for an Alchemy account at [alchemy.com](https://www.alchemy.com/)
+2. Create a Solana app in the Alchemy dashboard
+3. Copy your API key and Solana URL to your `.env` file:
+   ```
+   ALCHEMY_API_KEY=your_api_key_here
+   ALCHEMY_SOLANA_URL=https://solana-mainnet.g.alchemy.com/v2/your_api_key_here
+   ```
+
+Test your integration with:
+```bash
+python test_alchemy_integration.py
+```
 
 ## Development
-
-### Project Structure
-
-```
-HiramAbiff/
-├── docs/                # Documentation
-├── examples/            # Example scripts
-├── scripts/             # Utility scripts
-├── src/                 # Source code
-│   ├── agents/          # Agent implementations
-│   ├── analysis/        # Token analysis and visualization
-│   ├── blockchain/      # Blockchain connectors
-│   ├── core/            # Core utilities
-│   ├── data/            # Data management
-│   └── api/             # API interfaces
-├── tests/               # Tests
-├── tools/               # Development tools
-├── .env.example         # Example environment variables
-├── CONTRIBUTING.md      # Contribution guidelines
-├── LICENSE              # License information
-├── NEXT_STEPS.md        # Future roadmap
-├── README.md            # This file
-├── requirements.txt     # Production dependencies
-└── requirements-dev.txt # Development dependencies
-```
-
-### Development Tools
-
-- **Dependency Checker**: Check if your environment is set up correctly.
-  ```bash
-  python tools/check_dependencies.py
-  ```
-
-- **Development Dependencies**: Install development dependencies for contributing.
-  ```bash
-  pip install -r requirements-dev.txt
-  ```
 
 ### Contributing
 
@@ -172,7 +188,7 @@ Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for gui
 
 ### Roadmap
 
-For future plans and development roadmap, see [NEXT_STEPS.md](NEXT_STEPS.md).
+For future plans and development roadmap, see [PROJECT_SUMMARY.md](PROJECT_SUMMARY.md).
 
 ## License
 
@@ -180,6 +196,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ## Acknowledgments
 
+- Alchemy for their powerful blockchain infrastructure
 - DeFi Llama for their comprehensive DeFi data
 - CoinGecko for their token pricing API
 - OpenAI for their powerful language models
