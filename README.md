@@ -18,6 +18,43 @@ HiramAbiff is an intelligent multi-agent system designed to analyze and execute 
 - **LLM-Powered Insights**: Uses large language models to generate investment analyses
 - **Extensible Framework**: Easily add new agents, data sources, and execution methods
 - **Alchemy Integration**: Direct access to Solana blockchain data via Alchemy's robust APIs
+- **Yield Farming Dashboard**: Interactive dashboard for exploring yield opportunities and portfolio simulation
+- **Risk Assessment**: Smart scoring system for evaluating yield farming risks and rewards
+
+## New Features: Wallet Integration and Monetization
+
+HiramAbiff now includes wallet integration and monetization features in the MVP expansion:
+
+### Wallet Integration
+
+The platform now supports connection to Solana wallets, including:
+- Phantom wallet integration
+- Solflare wallet integration
+- Portfolio tracking and visualization
+- Transaction history viewing
+- Staked assets monitoring
+
+To use the wallet integration:
+1. Launch the yield dashboard
+2. Go to the "Wallet Integration" tab
+3. Click "Connect Phantom" or "Connect Solflare"
+4. Your wallet data will be displayed, including portfolio, staked assets, and transaction history
+
+Note: The current implementation uses mock data for demonstration purposes. In production, it will connect to actual wallets and fetch real data from the blockchain.
+
+### Monetization Features
+
+The platform includes a monetization strategy with fee management:
+- Fee calculation based on profit (1% of profit by default)
+- HIRAM token staking for fee discounts
+- Tiered fee discount system based on staking amount
+- Fee statistics and tracking
+
+To test the monetization features:
+1. Connect your wallet (mock)
+2. View your fee statistics in the "Fee Information" card
+3. Stake HIRAM tokens to get fee discounts
+4. Simulate transactions to see how fees are calculated
 
 ## Project Structure
 
@@ -37,7 +74,12 @@ HiramAbiff/
 │   ├── services/        # Service integrations
 │   │   ├── market_data.py   # Cryptocurrency market data service
 │   │   └── ai_analysis.py   # AI-powered market analysis
-│   └── web/             # Web dashboard and API
+│   ├── web/             # Web dashboard and API
+│   ├── data_aggregator.py      # Yield data aggregation
+│   ├── opportunity_detector.py # Yield opportunity detection
+│   ├── trade_simulator.py      # Yield strategy simulation
+│   ├── yield_insights.py       # AI-powered yield analysis
+│   └── yield_dashboard.py      # Yield farming dashboard
 ├── tests/               # Tests
 ├── tools/               # Development tools
 ├── .env.example         # Example environment variables
@@ -46,6 +88,7 @@ HiramAbiff/
 ├── NEXT_STEPS.md        # Future roadmap
 ├── PROJECT_SUMMARY.md   # Project summary and roadmap
 ├── README.md            # This file
+├── run_yield_dashboard.py # Yield dashboard entry point
 ├── requirements.txt     # Production dependencies
 ├── simple_dashboard.py  # Main dashboard application
 ├── test_alchemy_integration.py # Alchemy API integration test
@@ -113,6 +156,21 @@ The dashboard features:
 - AI-powered market analysis reports (requires OpenAI API key)
 - Auto-refresh functionality that updates data every 5 minutes
 
+Run the yield farming dashboard:
+
+```bash
+python run_yield_dashboard.py
+```
+
+This will start the Yield Farming Dashboard at http://localhost:8889/
+
+The yield dashboard features:
+- Real-time yield farming opportunities from Solana DeFi protocols
+- Risk assessment and opportunity scoring
+- Portfolio simulation with various compounding strategies
+- AI-powered yield analysis and recommendations
+- Interactive filtering and visualization
+
 You can also test the Alchemy API integration:
 
 ```bash
@@ -155,6 +213,7 @@ For more examples, see the [examples directory](examples/).
 - [LLM Analysis](docs/LLM_ANALYSIS.md): Guide to using LLM-powered insights
 - [CLI Reference](docs/CLI_REFERENCE.md): Detailed CLI command reference
 - [Alchemy Integration](docs/ALCHEMY_INTEGRATION.md): Guide to using Alchemy's Solana APIs
+- [Yield Farming](yield_README.md): Guide to using the yield farming dashboard
 
 ## Alchemy Integration
 
@@ -201,3 +260,25 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 - CoinGecko for their token pricing API
 - OpenAI for their powerful language models
 - The Solana and Ethereum communities for their extensive documentation and tools 
+
+## Running the Demo
+
+To run the full HiramAbiff platform demo:
+
+```bash
+# Start both dashboards with one command
+./demo.py
+
+# Run only the yield dashboard with wallet features
+./demo.py --yield-only
+
+# Run in debug mode
+./demo.py --debug
+
+# Don't automatically open browsers
+./demo.py --no-browser
+```
+
+The demo will start both dashboards:
+- Market Dashboard: http://localhost:8890/
+- Yield Dashboard: http://localhost:8889/ 

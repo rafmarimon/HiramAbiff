@@ -65,12 +65,21 @@ class TokenTracker:
         # Endpoints
         self.coingecko_api = "https://api.coingecko.com/api/v3"
         self.etherscan_api = "https://api.etherscan.io/api"
+        
+        # Set up Ethereum RPC endpoint
         self.ethereum_rpc = os.getenv("ETHEREUM_RPC_URL", "https://mainnet.infura.io/v3/")
         
         if self.infura_api_key and not self.ethereum_rpc.endswith(self.infura_api_key):
             self.ethereum_rpc = f"{self.ethereum_rpc}{self.infura_api_key}"
+        elif self.alchemy_api_key and not "alchemy" in self.ethereum_rpc:
+            self.ethereum_rpc = f"https://eth-mainnet.g.alchemy.com/v2/{self.alchemy_api_key}"
             
-        self.solana_rpc = os.getenv("SOLANA_RPC_URL", "https://api.mainnet-beta.solana.com")
+        # Set up Solana RPC endpoint
+        self.solana_rpc = os.getenv("ALCHEMY_SOLANA_URL", 
+                                   os.getenv("SOLANA_RPC_URL", "https://api.mainnet-beta.solana.com"))
+        
+        logger.info(f"Initialized TokenTracker with Solana RPC: {self.solana_rpc}")
+        logger.info(f"Initialized TokenTracker with Ethereum RPC: {self.ethereum_rpc.split('/v2/')[0]}/v2/...")
         
         # Cache to store token prices
         self.price_cache = {}

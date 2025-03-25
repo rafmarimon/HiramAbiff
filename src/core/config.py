@@ -88,8 +88,23 @@ class Settings(BaseSettings):
     SOLANA_RPC_URL_DEVNET: str = "https://api.devnet.solana.com"
     
     # Ethereum
-    ETHEREUM_RPC_URL: str = "https://eth-mainnet.g.alchemy.com/v2/demo"
-    ETHEREUM_RPC_URL_TESTNET: str = "https://eth-sepolia.g.alchemy.com/v2/demo"
+    ETHEREUM_RPC_URL: str = os.getenv("ETHEREUM_RPC_URL", "https://eth-mainnet.infura.io/v3/your-project-id")
+    ETHEREUM_RPC_URL_TESTNET: str = os.getenv("ETHEREUM_RPC_URL_TESTNET", "https://eth-sepolia.infura.io/v3/your-project-id")
+    
+    # Check if Alchemy Solana URL is set, and use it for Ethereum if needed
+    @model_validator(mode="after")
+    def setup_alchemy_endpoints(self) -> "Settings":
+        alchemy_key = os.getenv("ALCHEMY_API_KEY")
+        if alchemy_key:
+            # If we have an Alchemy key but no Ethereum RPC URL set via env var,
+            # use the Alchemy key to create Ethereum endpoints
+            if self.ETHEREUM_RPC_URL == "https://eth-mainnet.infura.io/v3/your-project-id":
+                self.ETHEREUM_RPC_URL = f"https://eth-mainnet.g.alchemy.com/v2/{alchemy_key}"
+            
+            if self.ETHEREUM_RPC_URL_TESTNET == "https://eth-sepolia.infura.io/v3/your-project-id":
+                self.ETHEREUM_RPC_URL_TESTNET = f"https://eth-sepolia.g.alchemy.com/v2/{alchemy_key}"
+        
+        return self
     
     # DeFi Data Sources
     DEFILLAMA_API_URL: str = "https://yields.llama.fi"
@@ -112,6 +127,20 @@ class Settings(BaseSettings):
     # Web Interface
     WEB_DASHBOARD_ENABLED: bool = True
     WEB_API_ENABLED: bool = True
+    
+    # LLM Settings
+    LLM_MODEL: str = "gpt-4"
+    LLM_TEMPERATURE: float = 0.1
+    LLM_MAX_TOKENS: int = 1000
+    
+    # LangChain Settings
+    LANGCHAIN_API_KEY: Optional[str] = None
+    LANGCHAIN_PROJECT: str = "hiramabiff-market-analysis"
+    LANGCHAIN_TRACING_V2: bool = True
+    
+    # Report Settings
+    REPORT_GENERATION_TIME: str = "08:00"  # Time to generate daily reports (24-hour format)
+    REPORT_STORAGE_PATH: str = str(BASE_DIR / "reports")
 
 
 # Create a global settings instance

@@ -1,0 +1,255 @@
+/* 
+ * HiramAbiff Yield Dashboard
+ * Custom CSS Styles
+ */
+
+/* General Styles */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f8f9fa;
+    color: #343a40;
+}
+
+.navbar-brand {
+    font-weight: 600;
+    font-size: 1.3rem;
+}
+
+.card {
+    border-radius: 0.5rem;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1) !important;
+}
+
+.card-header {
+    border-bottom: none;
+    background-color: transparent;
+    padding: 1.25rem 1.25rem 0.5rem;
+}
+
+.card-header h5 {
+    font-weight: 600;
+    color: #343a40;
+}
+
+.bg-primary {
+    background-color: #6200EA !important;
+}
+
+.btn-primary {
+    background-color: #6200EA;
+    border-color: #6200EA;
+}
+
+.btn-primary:hover {
+    background-color: #5000c8;
+    border-color: #5000c8;
+}
+
+.btn-outline-primary {
+    color: #6200EA;
+    border-color: #6200EA;
+}
+
+.btn-outline-primary:hover {
+    background-color: #6200EA;
+    border-color: #6200EA;
+}
+
+.text-primary {
+    color: #6200EA !important;
+}
+
+/* Summary Cards */
+#summary-cards .card {
+    overflow: hidden;
+}
+
+#summary-cards .rounded-circle {
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Dashboard Charts */
+.portfolio-chart-container {
+    position: relative;
+    height: 300px;
+}
+
+/* Wallet Summary */
+#wallet-tokens .token-item {
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+    margin-bottom: 0.5rem;
+    background-color: #f8f9fa;
+    transition: background-color 0.2s;
+}
+
+#wallet-tokens .token-item:hover {
+    background-color: #e9ecef;
+}
+
+/* AI Insights */
+.insight-card {
+    transition: transform 0.2s, box-shadow 0.2s;
+    background-color: #fff;
+}
+
+.insight-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Opportunities Table */
+#opportunitiesTable th {
+    font-weight: 600;
+    color: #495057;
+}
+
+#opportunitiesTable td {
+    vertical-align: middle;
+}
+
+.badge {
+    font-weight: 500;
+    padding: 0.4em 0.7em;
+}
+
+/* Responsive adjustments */
+@media (max-width: 767px) {
+    #summary-cards .card {
+        margin-bottom: 1rem;
+    }
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
+
+/* Market Page */
+.market-header {
+    background-color: #6200EA;
+    padding: 2rem 0;
+    color: white;
+    margin-bottom: 2rem;
+    border-radius: 0.5rem;
+}
+
+.market-stats-card {
+    text-align: center;
+    padding: 1.5rem;
+}
+
+.market-stats-card h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+}
+
+/* Portfolio Page */
+.strategy-card {
+    border-left: 4px solid #6200EA;
+}
+
+.performance-indicator {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 5px;
+}
+
+.performance-indicator.high {
+    background-color: #28a745;
+}
+
+.performance-indicator.medium {
+    background-color: #ffc107;
+}
+
+.performance-indicator.low {
+    background-color: #dc3545;
+}
+
+/* Staking Page */
+.tier-card {
+    text-align: center;
+    padding: 1.5rem;
+    border: 2px solid transparent;
+}
+
+.tier-card.active {
+    border-color: #6200EA;
+}
+
+.tier-card .tier-name {
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.tier-card .tier-amount {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+.tier-card .tier-benefits {
+    margin-bottom: 1.5rem;
+}
+
+.tier-level {
+    position: absolute;
+    top: 0;
+    right: 0;
+    background-color: #6200EA;
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 0 0.5rem 0 0.5rem;
+    font-weight: 600;
+}
+
+/* Loading Spinner */
+.loading-spinner {
+    display: inline-block;
+    width: 2rem;
+    height: 2rem;
+    border: 0.25rem solid rgba(0, 0, 0, 0.1);
+    border-radius: 50%;
+    border-top-color: #6200EA;
+    animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Animations */
+.fade-in {
+    animation: fadeIn 0.5s;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+} 

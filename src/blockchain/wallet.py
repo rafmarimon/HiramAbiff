@@ -1,193 +1,202 @@
 """
-Solana wallet management module.
+Wallet Management Module for HiramAbiff
 
-This module provides functionality for managing Solana wallets, 
-including loading existing wallets, creating new wallets, and
-signing transactions.
+This module provides functionality for creating and managing Solana wallets.
+Uses mock implementation for the MVP.
 """
 
-import base58
-import json
 import os
+import json
+import base64
+import secrets
+import logging
+import datetime
 from pathlib import Path
-from typing import Dict, Optional, Tuple, Union
+from typing import Dict, List, Optional, Tuple, Any
 
-from loguru import logger
-from solana.keypair import Keypair
-from solana.publickey import PublicKey
-from solana.rpc.commitment import Confirmed
-from solana.transaction import Transaction
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
-from src.core.config import settings
-
+# Wallet storage directory
+WALLET_DIR = Path("wallets")
+WALLET_DIR.mkdir(exist_ok=True)
 
 class WalletManager:
     """
-    Manager for Solana wallet operations.
-    
-    This class handles operations related to Solana wallets:
-    - Loading and saving keypairs
-    - Managing multiple wallets
-    - Signing transactions
+    Class for creating and managing Solana wallets.
+    Uses mock implementation for the MVP.
     """
     
-    def __init__(self, wallet_dir: Optional[Path] = None):
-        """
-        Initialize the wallet manager.
-        
-        Args:
-            wallet_dir: Directory to store wallet files. Defaults to ~/.hiramabiff/wallets/
-        """
-        if wallet_dir is None:
-            # Default to ~/.hiramabiff/wallets/
-            self.wallet_dir = Path.home() / ".hiramabiff" / "wallets"
-        else:
-            self.wallet_dir = wallet_dir
-            
-        # Create the wallet directory if it doesn't exist
-        self.wallet_dir.mkdir(parents=True, exist_ok=True)
-        
-        # Currently loaded keypairs
-        self._keypairs: Dict[str, Keypair] = {}
-        
-        logger.info(f"Initialized wallet manager with wallet directory: {self.wallet_dir}")
+    def __init__(self):
+        """Initialize the wallet manager."""
+        self.wallets = {}
+        self._load_wallets()
     
-    def create_wallet(self, name: str) -> Tuple[str, str]:
-        """
-        Create a new wallet.
-        
-        Args:
-            name: Name of the wallet.
-            
-        Returns:
-            Tuple[str, str]: Public key and private key in base58 format.
-        """
-        keypair = Keypair()
-        public_key = str(keypair.public_key)
-        private_key = base58.b58encode(bytes(keypair.secret_key)).decode("ascii")
-        
-        # Store in memory
-        self._keypairs[name] = keypair
-        
-        # Save to file
-        wallet_path = self.wallet_dir / f"{name}.json"
-        
-        wallet_data = {
-            "name": name,
-            "public_key": public_key,
-            "private_key": private_key
-        }
-        
-        with open(wallet_path, "w") as f:
-            json.dump(wallet_data, f, indent=2)
-        
-        logger.info(f"Created new wallet '{name}' with public key: {public_key}")
-        return public_key, private_key
-    
-    def load_wallet(self, name: str) -> Optional[Tuple[str, str]]:
-        """
-        Load a wallet from disk.
-        
-        Args:
-            name: Name of the wallet.
-            
-        Returns:
-            Optional[Tuple[str, str]]: Public key and private key in base58 format if found.
-        """
-        wallet_path = self.wallet_dir / f"{name}.json"
-        
-        if not wallet_path.exists():
-            logger.error(f"Wallet '{name}' not found at {wallet_path}")
-            return None
-        
+    def _load_wallets(self):
+        """Load existing wallets from storage."""
         try:
-            with open(wallet_path, "r") as f:
-                wallet_data = json.load(f)
+            for wallet_file in WALLET_DIR.glob("*.json"):
+                try:
+                    with open(wallet_file, "r") as f:
+                        wallet_data = json.load(f)
+                        wallet_name = wallet_file.stem
+                        self.wallets[wallet_name] = wallet_data
+                        logger.info(f"Loaded wallet: {wallet_name}")
+                except Exception as e:
+                    logger.error(f"Error loading wallet from {wallet_file}: {str(e)}")
+        except Exception as e:
+            logger.error(f"Error loading wallets: {str(e)}")
+    
+    def create_wallet(self, name: str) -> Dict[str, Any]:
+        """
+        Create a new mock wallet.
+        
+        Args:
+            name: Name of the wallet
             
-            public_key = wallet_data["public_key"]
-            private_key = wallet_data["private_key"]
+        Returns:
+            Dict[str, Any]: Wallet information
+        """
+        try:
+            # Check if wallet already exists
+            if name in self.wallets:
+                return {"error": f"Wallet '{name}' already exists"}
             
-            # Recreate the keypair from the private key
-            secret_key = base58.b58decode(private_key)
-            keypair = Keypair.from_secret_key(secret_key)
+            # Generate mock wallet data
+            public_key = "".join([secrets.choice("123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz") for _ in range(44)])
+            private_key = base64.b64encode(secrets.token_bytes(32)).decode('utf-8')
             
-            # Store in memory
-            self._keypairs[name] = keypair
+            # Create wallet data
+            wallet_data = {
+                "name": name,
+                "public_key": public_key,
+                "private_key": private_key,  # In a real implementation, this would be securely stored
+                "created_at": str(datetime.datetime.now().isoformat()),
+            }
             
-            logger.info(f"Loaded wallet '{name}' with public key: {public_key}")
-            return public_key, private_key
+            # Save wallet
+            self.wallets[name] = wallet_data
+            self._save_wallet(name, wallet_data)
+            
+            logger.info(f"Created new wallet: {name} with address {public_key}")
+            
+            # Return wallet info (without private key)
+            return {
+                "name": name,
+                "public_key": public_key,
+                "created_at": wallet_data["created_at"]
+            }
         
         except Exception as e:
-            logger.error(f"Failed to load wallet '{name}': {e}")
-            return None
+            logger.error(f"Error creating wallet: {str(e)}")
+            return {"error": f"Error creating wallet: {str(e)}"}
     
-    def get_wallet(self, name: str) -> Optional[Keypair]:
+    def get_wallet(self, name: str) -> Dict[str, Any]:
         """
-        Get a wallet keypair by name.
+        Get wallet by name.
         
         Args:
-            name: Name of the wallet.
+            name: Name of the wallet
             
         Returns:
-            Optional[Keypair]: The keypair if found.
+            Dict[str, Any]: Wallet information
         """
-        if name in self._keypairs:
-            return self._keypairs[name]
-        
-        # Try to load from disk
-        result = self.load_wallet(name)
-        if result:
-            return self._keypairs[name]
-        
-        return None
-    
-    def sign_transaction(self, name: str, transaction: Transaction) -> Optional[Transaction]:
-        """
-        Sign a transaction with a wallet.
-        
-        Args:
-            name: Name of the wallet.
-            transaction: Transaction to sign.
-            
-        Returns:
-            Optional[Transaction]: The signed transaction if successful.
-        """
-        keypair = self.get_wallet(name)
-        if not keypair:
-            logger.error(f"Wallet '{name}' not found")
-            return None
-        
         try:
-            transaction.sign([keypair])
-            return transaction
+            if name not in self.wallets:
+                return {"error": f"Wallet '{name}' not found"}
+            
+            wallet_data = self.wallets[name]
+            
+            # Return wallet info (without private key)
+            return {
+                "name": name,
+                "public_key": wallet_data["public_key"],
+                "created_at": wallet_data["created_at"]
+            }
         
         except Exception as e:
-            logger.error(f"Failed to sign transaction: {e}")
-            return None
+            logger.error(f"Error getting wallet: {str(e)}")
+            return {"error": f"Error getting wallet: {str(e)}"}
     
-    def list_wallets(self) -> Dict[str, str]:
+    def list_wallets(self) -> List[Dict[str, Any]]:
         """
-        List all available wallets.
+        List all wallets.
         
         Returns:
-            Dict[str, str]: Dictionary mapping wallet names to public keys.
+            List[Dict[str, Any]]: List of wallet information
         """
-        wallets = {}
+        try:
+            return [
+                {
+                    "name": name,
+                    "public_key": data["public_key"],
+                    "created_at": data["created_at"]
+                }
+                for name, data in self.wallets.items()
+            ]
         
-        for wallet_file in self.wallet_dir.glob("*.json"):
-            try:
-                with open(wallet_file, "r") as f:
-                    wallet_data = json.load(f)
-                
-                name = wallet_data["name"]
-                public_key = wallet_data["public_key"]
-                wallets[name] = public_key
+        except Exception as e:
+            logger.error(f"Error listing wallets: {str(e)}")
+            return [{"error": f"Error listing wallets: {str(e)}"}]
+    
+    def delete_wallet(self, name: str) -> Dict[str, Any]:
+        """
+        Delete a wallet.
+        
+        Args:
+            name: Name of the wallet
             
-            except Exception as e:
-                logger.warning(f"Failed to read wallet file {wallet_file}: {e}")
+        Returns:
+            Dict[str, Any]: Deletion result
+        """
+        try:
+            if name not in self.wallets:
+                return {"error": f"Wallet '{name}' not found"}
+            
+            # Remove from memory
+            wallet_data = self.wallets.pop(name)
+            
+            # Remove file
+            wallet_file = WALLET_DIR / f"{name}.json"
+            if wallet_file.exists():
+                wallet_file.unlink()
+            
+            logger.info(f"Deleted wallet: {name}")
+            
+            return {
+                "success": True,
+                "name": name,
+                "public_key": wallet_data["public_key"]
+            }
         
-        return wallets
-
+        except Exception as e:
+            logger.error(f"Error deleting wallet: {str(e)}")
+            return {"error": f"Error deleting wallet: {str(e)}"}
+    
+    def _save_wallet(self, name: str, wallet_data: Dict[str, Any]) -> bool:
+        """
+        Save wallet to storage.
+        
+        Args:
+            name: Name of the wallet
+            wallet_data: Wallet data to save
+            
+        Returns:
+            bool: Success flag
+        """
+        try:
+            wallet_file = WALLET_DIR / f"{name}.json"
+            
+            with open(wallet_file, "w") as f:
+                json.dump(wallet_data, f, indent=2)
+            
+            logger.info(f"Saved wallet to {wallet_file}")
+            return True
+        
+        except Exception as e:
+            logger.error(f"Error saving wallet: {str(e)}")
+            return False
 
 # Create a global wallet manager instance
 wallet_manager = WalletManager() 

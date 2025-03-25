@@ -1,0 +1,97 @@
+{
+  "portfolio_id": "portfolio-c7aa39da-76bc-4cd8-b027-fec9b1f6d847",
+  "name": "Demo Portfolio",
+  "creation_time": "2025-03-24T19:50:58.379053",
+  "last_update": "2025-03-24T19:50:58.379514",
+  "strategies": {
+    "strategy-3f378db7-4f9d-4e62-80db-9e8b0fe078e4": {
+      "strategy_id": "strategy-3f378db7-4f9d-4e62-80db-9e8b0fe078e4",
+      "name": "Marinade SOL Staking",
+      "protocol": "Marinade",
+      "symbol": "SOL",
+      "pool_id": null,
+      "initial_investment": 1000.0,
+      "apy": 6.5,
+      "duration_days": 365,
+      "compound_frequency": "daily",
+      "risk_level": "Low",
+      "daily_rate": 0.00017808219178082192,
+      "creation_time": "2025-03-24T19:50:58.379499",
+      "expected_returns": {
+        "days": 365,
+        "initial_investment": 1000.0,
+        "simple_interest": 65.0,
+        "compound_interest": 67.15284876960732,
+        "simple_final": 1065.0,
+        "compound_final": 1067.1528487696073,
+        "simple_roi": 6.5,
+        "compound_roi": 6.715284876960732
+      }
+    },
+    "strategy-c04bcd78-5813-494c-9e26-0f61bfb6affc": {
+      "strategy_id": "strategy-c04bcd78-5813-494c-9e26-0f61bfb6affc",
+      "name": "Raydium SOL-USDC LP",
+      "protocol": "Raydium",
+      "symbol": "SOL-USDC",
+      "pool_id": null,
+      "initial_investment": 2000.0,
+      "apy": 12.0,
+      "duration_days": 365,
+      "compound_frequency": "daily",
+      "risk_level": "Medium",
+      "daily_rate": 0.00032876712328767124,
+      "creation_time": "2025-03-24T19:50:58.379507",
+      "expected_returns": {
+        "days": 365,
+        "initial_investment": 2000.0,
+        "simple_interest": 240.0,
+        "compound_interest": 254.94923127680022,
+        "simple_final": 2240.0,
+        "compound_final": 2254.9492312768,
+        "simple_roi": 12.0,
+        "compound_roi": 12.747461563840009
+      }
+    },
+    "strategy-f8da550e-81c9-40fa-9536-de86e4f5293f": {
+      "strategy_id": "strategy-f8da550e-81c9-40fa-9536-de86e4f5293f",
+      "name": "Orca MNDE-SOL LP",
+      "protocol": "Orca",
+      "symbol": "MNDE-SOL",
+      "pool_id": null,
+      "initial_investment": 500.0,
+      "apy": 24.0,
+      "duration_days": 365,
+      "compound_frequency": "daily",
+      "risk_level": "High",
+      "daily_rate": 0.0006575342465753425,
+      "creation_time": "2025-03-24T19:50:58.379511",
+      "expected_returns": {
+        "days": 365,
+        "initial_investment": 500.0,
+        "simple_interest": 120.0,
+        "compound_interest": 135.57444572064446,
+        "simple_final": 620.0,
+        "compound_final": 635.5744457206445,
+        "simple_roi": 24.0,
+        "compound_roi": 27.114889144128888
+      }
+    }
+  },
+  "summary": {
+    "portfolio_id": "portfolio-c7aa39da-76bc-4cd8-b027-fec9b1f6d847",
+    "name": "Demo Portfolio",
+    "creation_time": "2025-03-24T19:50:58.379053",
+    "last_update": "2025-03-24T19:50:58.379514",
+    "strategy_count": 3,
+    "total_investment": 3500.0,
+    "total_value": 3957.676525767052,
+    "total_profit": 457.6765257670522,
+    "roi": 13.07647216477292,
+    "weighted_apy": 12.142857142857142,
+    "protocol_distribution": {
+      "Marinade": 1000.0,
+      "Raydium": 2000.0,
+      "Orca": 500.0
+    }
+  }
+}

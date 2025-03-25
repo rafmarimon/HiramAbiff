@@ -1,0 +1,672 @@
+/* HiramAbiff Dashboard Styles */
+
+:root {
+    --primary-color: #7B68EE;
+    --primary-light: #9E8EF5;
+    --primary-dark: #5846B8;
+    --secondary-color: #6C757D;
+    --success-color: #28A745;
+    --info-color: #17A2B8;
+    --warning-color: #FFC107;
+    --danger-color: #DC3545;
+    --light-color: #F8F9FA;
+    --dark-color: #343A40;
+    --border-radius: 0.25rem;
+    --box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    --transition-speed: 0.3s;
+    --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+
+/* Global Styles */
+body {
+    font-family: var(--font-family);
+    background-color: var(--light-color);
+    color: var(--dark-color);
+}
+
+.navbar-brand-text {
+    font-weight: 700;
+    font-size: 1.5rem;
+}
+
+/* Card Styling */
+.card {
+    border-radius: var(--border-radius);
+    transition: transform var(--transition-speed), box-shadow var(--transition-speed);
+    border: none;
+}
+
+.card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+.card-header {
+    background-color: white;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    font-weight: 600;
+}
+
+/* Button Styling */
+.btn-primary {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.btn-primary:hover {
+    background-color: var(--primary-dark);
+    border-color: var(--primary-dark);
+}
+
+.btn-outline-primary {
+    color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.btn-outline-primary:hover {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+/* Table Styling */
+.table {
+    margin-bottom: 0;
+}
+
+.table th {
+    border-top: none;
+    font-weight: 600;
+    color: var(--secondary-color);
+}
+
+.table-hover tbody tr:hover {
+    background-color: rgba(123, 104, 238, 0.05);
+}
+
+/* Nav Tabs */
+.nav-tabs .nav-link {
+    color: var(--secondary-color);
+    border: none;
+    padding: 0.75rem 1rem;
+    font-weight: 500;
+}
+
+.nav-tabs .nav-link.active {
+    color: var(--primary-color);
+    background-color: transparent;
+    border-bottom: 2px solid var(--primary-color);
+}
+
+.nav-tabs .nav-link:hover {
+    color: var(--primary-color);
+    border-color: transparent;
+}
+
+/* Custom Components */
+.opportunity-card {
+    cursor: pointer;
+    border-left: 3px solid transparent;
+}
+
+.opportunity-card:hover {
+    border-left-color: var(--primary-color);
+}
+
+.badge-apy {
+    background-color: rgba(40, 167, 69, 0.1);
+    color: var(--success-color);
+    font-weight: 500;
+}
+
+.badge-risk-low {
+    background-color: rgba(40, 167, 69, 0.1);
+    color: var(--success-color);
+}
+
+.badge-risk-medium {
+    background-color: rgba(255, 193, 7, 0.1);
+    color: var(--warning-color);
+}
+
+.badge-risk-high {
+    background-color: rgba(220, 53, 69, 0.1);
+    color: var(--danger-color);
+}
+
+/* Insights Card */
+.insight-item {
+    padding: 1rem;
+    margin-bottom: 0.5rem;
+    border-radius: var(--border-radius);
+    background-color: rgba(123, 104, 238, 0.05);
+}
+
+.insight-item i {
+    color: var(--primary-color);
+    margin-right: 0.5rem;
+}
+
+/* Wallet Connection */
+.wallet-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border-radius: var(--border-radius);
+    transition: all var(--transition-speed);
+}
+
+.wallet-button img {
+    width: 24px;
+    height: 24px;
+}
+
+.wallet-connected {
+    background-color: rgba(40, 167, 69, 0.1);
+    color: var(--success-color);
+    padding: 0.5rem 1rem;
+    border-radius: var(--border-radius);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* Wallet Table Styling */
+.wallet-table th {
+    font-weight: 500;
+    color: var(--secondary-color);
+    padding: 0.5rem;
+}
+
+.wallet-table td {
+    padding: 0.5rem;
+    vertical-align: middle;
+}
+
+.wallet-table .token-icon {
+    width: 24px;
+    height: 24px;
+    margin-right: 0.5rem;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .card {
+        margin-bottom: 1rem;
+    }
+    
+    .card:hover {
+        transform: none;
+    }
+    
+    .nav-tabs {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        white-space: nowrap;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    .nav-tabs .nav-link {
+        padding: 0.5rem 0.75rem;
+    }
+    
+    .table-responsive {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+}
+
+/* Animation */
+.fade-in {
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+}
+
+/* Utility Classes */
+.text-primary {
+    color: var(--primary-color) !important;
+}
+
+.bg-primary {
+    background-color: var(--primary-color) !important;
+}
+
+.border-primary {
+    border-color: var(--primary-color) !important;
+}
+
+.font-monospace {
+    font-family: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
+/* Staking & Fee Styling */
+.fee-tier {
+    padding: 0.75rem;
+    margin-bottom: 0.5rem;
+    border-radius: var(--border-radius);
+    background-color: rgba(123, 104, 238, 0.05);
+    border-left: 3px solid transparent;
+}
+
+.fee-tier.active {
+    border-left-color: var(--primary-color);
+    background-color: rgba(123, 104, 238, 0.1);
+}
+
+.stake-amount {
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.token-staking-card {
+    background-color: rgba(123, 104, 238, 0.05);
+}
+
+/* Tooltips */
+.tooltip-inner {
+    background-color: var(--dark-color);
+    border-radius: var(--border-radius);
+    padding: 0.5rem 0.75rem;
+}
+
+.bs-tooltip-auto[x-placement^=top] .arrow::before, 
+.bs-tooltip-top .arrow::before {
+    border-top-color: var(--dark-color);
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--light-color);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--secondary-color);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--primary-color);
+}
+
+/* HiramAbiff Yield Dashboard Styles */
+
+:root {
+    --primary-color: #6200ea;
+    --primary-light: #9d46ff;
+    --primary-dark: #0a00b6;
+    --accent-color: #00e676;
+    --text-primary: #212121;
+    --text-secondary: #757575;
+    --divider-color: #BDBDBD;
+    --background-light: #f5f5f5;
+    --card-background: #ffffff;
+    --badge-apy: #00c853;
+    --badge-risk-low: #00c853;
+    --badge-risk-medium: #ffd600;
+    --badge-risk-high: #ff3d00;
+    --success-color: #00c853;
+    --warning-color: #ffd600;
+    --danger-color: #ff3d00;
+}
+
+/* Dark mode variables */
+.dark-mode {
+    --primary-color: #7c4dff;
+    --primary-light: #b47cff;
+    --primary-dark: #3f1dcb;
+    --accent-color: #00e676;
+    --text-primary: #e0e0e0;
+    --text-secondary: #9e9e9e;
+    --divider-color: #424242;
+    --background-light: #121212;
+    --card-background: #1e1e1e;
+    --badge-apy: #00c853;
+    --badge-risk-low: #00c853;
+    --badge-risk-medium: #ffd600;
+    --badge-risk-high: #ff3d00;
+    --success-color: #00c853;
+    --warning-color: #ffd600;
+    --danger-color: #ff3d00;
+}
+
+body {
+    font-family: 'Roboto', sans-serif;
+    background-color: var(--background-light);
+    color: var(--text-primary);
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Navigation styling */
+.navbar-brand-text {
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+.bg-primary {
+    background-color: var(--primary-color) !important;
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.btn-primary:hover {
+    background-color: var(--primary-light);
+    border-color: var(--primary-light);
+}
+
+.btn-outline-primary {
+    color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.btn-outline-primary:hover {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.text-primary {
+    color: var(--primary-color) !important;
+}
+
+/* Card styling */
+.card {
+    background-color: var(--card-background);
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+    transition: all 0.3s ease;
+}
+
+.card:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.card-header {
+    background-color: rgba(0, 0, 0, 0.03);
+    font-weight: 600;
+    border-bottom: 1px solid var(--divider-color);
+}
+
+.card-title {
+    color: var(--text-primary);
+    font-weight: 600;
+    margin-bottom: 15px;
+}
+
+/* Table styling */
+.table {
+    color: var(--text-primary);
+}
+
+.table thead th {
+    border-top: none;
+    border-bottom: 2px solid var(--divider-color);
+    font-weight: 600;
+}
+
+.table-hover tbody tr:hover {
+    background-color: rgba(0, 0, 0, 0.03);
+}
+
+.dark-mode .table-hover tbody tr:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+/* Badge styling */
+.badge {
+    padding: 5px 10px;
+    border-radius: 12px;
+    font-weight: 500;
+    font-size: 0.8rem;
+}
+
+.badge-apy {
+    background-color: var(--badge-apy);
+    color: white;
+}
+
+.badge-risk-low {
+    background-color: var(--badge-risk-low);
+    color: white;
+}
+
+.badge-risk-medium {
+    background-color: var(--badge-risk-medium);
+    color: black;
+}
+
+.badge-risk-high {
+    background-color: var(--badge-risk-high);
+    color: white;
+}
+
+/* Wallet section styling */
+.wallet-section {
+    display: flex;
+    align-items: center;
+}
+
+.wallet-connected {
+    display: flex;
+    align-items: center;
+    color: white;
+    background-color: rgba(255, 255, 255, 0.1);
+    padding: 5px 12px;
+    border-radius: 20px;
+}
+
+#wallet-address {
+    margin-right: 10px;
+    font-family: monospace;
+}
+
+/* Token icon styling */
+.token-icon {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    margin-right: 8px;
+}
+
+/* Insight item styling */
+.insight-item {
+    padding: 15px;
+    background-color: rgba(0, 0, 0, 0.02);
+    border-radius: 8px;
+    line-height: 1.6;
+}
+
+.dark-mode .insight-item {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.insight-item i {
+    margin-right: 10px;
+    color: var(--primary-color);
+}
+
+/* Wallet modal styling */
+.wallet-button {
+    padding: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 500;
+}
+
+.wallet-button img {
+    width: 28px;
+    height: 28px;
+    margin-right: 10px;
+}
+
+/* Dashboard Views */
+.dashboard-view {
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* Stat items styling */
+.stat-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--divider-color);
+}
+
+.stat-item:last-child {
+    border-bottom: none;
+}
+
+.stat-label {
+    font-weight: 500;
+    color: var(--text-secondary);
+}
+
+.stat-value {
+    font-weight: 600;
+}
+
+/* Trend items styling */
+.trend-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--divider-color);
+}
+
+.trend-item:last-child {
+    border-bottom: none;
+}
+
+.trend-label {
+    font-weight: 500;
+    color: var(--text-secondary);
+}
+
+.trend-value {
+    font-weight: 600;
+}
+
+/* Fee tier table styling */
+.fee-tier-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.fee-tier-row {
+    display: flex;
+    border-bottom: 1px solid var(--divider-color);
+}
+
+.fee-tier-row.header {
+    font-weight: 600;
+    background-color: rgba(0, 0, 0, 0.03);
+}
+
+.dark-mode .fee-tier-row.header {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.fee-tier-cell {
+    flex: 1;
+    padding: 10px;
+    text-align: center;
+}
+
+/* Returns preview styling */
+.returns-preview {
+    background-color: rgba(0, 0, 0, 0.03);
+    border-radius: 8px;
+    padding: 15px;
+}
+
+.dark-mode .returns-preview {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.return-item {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.return-item:last-child {
+    margin-bottom: 0;
+}
+
+.return-label {
+    font-weight: 500;
+    color: var(--text-secondary);
+}
+
+.return-value {
+    font-weight: 600;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .card {
+        margin-bottom: 15px;
+    }
+    
+    .wallet-connected {
+        font-size: 0.9rem;
+    }
+    
+    .btn {
+        font-size: 0.9rem;
+    }
+    
+    .fee-tier-table {
+        font-size: 0.9rem;
+    }
+    
+    .fee-tier-cell {
+        padding: 8px 5px;
+    }
+}
+
+/* Dark mode overrides */
+.dark-mode .card {
+    background-color: var(--card-background);
+}
+
+.dark-mode .table {
+    color: var(--text-primary);
+}
+
+.dark-mode .table thead th {
+    border-bottom-color: var(--divider-color);
+}
+
+.dark-mode .card-header {
+    background-color: rgba(255, 255, 255, 0.05);
+    border-bottom-color: var(--divider-color);
+}
+
+.dark-mode .btn-outline-primary {
+    color: var(--primary-light);
+    border-color: var(--primary-light);
+}
+
+.dark-mode .btn-outline-primary:hover {
+    background-color: var(--primary-light);
+    color: var(--card-background);
+} 

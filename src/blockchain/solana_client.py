@@ -1,241 +1,213 @@
 """
-Solana blockchain client module.
+Solana Client Module for HiramAbiff
 
-This module provides functionality for interacting with the Solana blockchain,
-including account management, transaction handling, and program interaction.
+This module provides functionality for interacting with the Solana blockchain.
+Uses mock implementation for the MVP.
 """
 
-import asyncio
-import json
 import os
-from enum import Enum
-from typing import Any, Dict, List, Optional, Union
+import json
+import random
+import datetime
+import logging
+from typing import Dict, List, Any, Optional
 
-import solana
-from loguru import logger
-from solana.keypair import Keypair
-from solana.publickey import PublicKey
-from solana.rpc.api import Client as SolanaClient
-from solana.rpc.async_api import AsyncClient as AsyncSolanaClient
-from solana.rpc.commitment import Confirmed, Finalized, Processed
-from solana.rpc.types import TxOpts
-from solana.transaction import Transaction
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
-from src.core.config import settings
-
-
-class NetworkType(str, Enum):
-    """Solana network types."""
-    MAINNET = "mainnet"
-    TESTNET = "testnet"
-    DEVNET = "devnet"
-
-
-class SolanaClientManager:
+class SolanaClient:
     """
-    Manages Solana client connections and provides utility methods for 
-    common Solana operations.
+    Class for interacting with the Solana blockchain.
+    Uses mock implementation for the MVP.
     """
     
-    def __init__(self, network_type: NetworkType = NetworkType.MAINNET):
+    def __init__(self, network: str = "mainnet"):
         """
-        Initialize a Solana client manager.
+        Initialize the Solana client.
         
         Args:
-            network_type: The Solana network to connect to.
+            network: Network to connect to (mainnet, devnet, testnet)
         """
-        self.network_type = network_type
-        self._client = None
-        self._async_client = None
+        self.network = network
+        self.endpoint = os.getenv("SOLANA_RPC_ENDPOINT_MAINNET", "https://api.mainnet-beta.solana.com")
         
-        # Set the appropriate RPC URL based on network type
-        if network_type == NetworkType.MAINNET:
-            self.rpc_url = settings.SOLANA_RPC_URL
-        elif network_type == NetworkType.TESTNET:
-            self.rpc_url = settings.SOLANA_RPC_URL_TESTNET
-        elif network_type == NetworkType.DEVNET:
-            self.rpc_url = settings.SOLANA_RPC_URL_DEVNET
-        else:
-            raise ValueError(f"Invalid network type: {network_type}")
+        if network == "devnet":
+            self.endpoint = os.getenv("SOLANA_RPC_ENDPOINT_DEVNET", "https://api.devnet.solana.com")
+        elif network == "testnet":
+            self.endpoint = os.getenv("SOLANA_RPC_ENDPOINT_TESTNET", "https://api.testnet.solana.com")
         
-        logger.info(f"Initialized Solana client for {network_type} network")
+        logger.info(f"Initialized Solana client for {network} at {self.endpoint}")
     
-    @property
-    def client(self) -> SolanaClient:
+    def get_balance(self, wallet_address: str) -> Dict[str, Any]:
         """
-        Get or create a Solana client.
-        
-        Returns:
-            SolanaClient: The Solana client.
-        """
-        if self._client is None:
-            self._client = SolanaClient(self.rpc_url)
-        return self._client
-    
-    @property
-    def async_client(self) -> AsyncSolanaClient:
-        """
-        Get or create an async Solana client.
-        
-        Returns:
-            AsyncSolanaClient: The async Solana client.
-        """
-        if self._async_client is None:
-            self._async_client = AsyncSolanaClient(self.rpc_url)
-        return self._async_client
-    
-    def get_balance(self, public_key: Union[str, PublicKey]) -> float:
-        """
-        Get the SOL balance of an account.
+        Get balance for a wallet (mock implementation).
         
         Args:
-            public_key: The public key of the account.
+            wallet_address: Wallet address to get balance for
             
         Returns:
-            float: The SOL balance.
+            Dict[str, Any]: Balance information
         """
-        if isinstance(public_key, str):
-            public_key = PublicKey(public_key)
+        try:
+            # In a real implementation, this would call the Solana RPC API
+            # For MVP, return mock data
+            
+            # Generate a random balance
+            balance_lamports = random.randint(100000000, 10000000000)
+            balance_sol = balance_lamports / 1e9
+            
+            logger.info(f"Got mock balance for {wallet_address}: {balance_sol} SOL")
+            
+            return {
+                "address": wallet_address,
+                "balance_lamports": balance_lamports,
+                "balance_sol": balance_sol,
+                "network": self.network
+            }
         
-        response = self.client.get_balance(public_key)
-        if "result" in response and "value" in response["result"]:
-            # Convert lamports to SOL (1 SOL = 10^9 lamports)
-            return response["result"]["value"] / 10**9
-        else:
-            logger.error(f"Failed to get balance: {response}")
-            return 0.0
+        except Exception as e:
+            logger.error(f"Error getting balance: {str(e)}")
+            return {"error": f"Error getting balance: {str(e)}"}
     
-    async def get_balance_async(self, public_key: Union[str, PublicKey]) -> float:
+    def get_token_balances(self, wallet_address: str) -> List[Dict[str, Any]]:
         """
-        Get the SOL balance of an account asynchronously.
+        Get token balances for a wallet (mock implementation).
         
         Args:
-            public_key: The public key of the account.
+            wallet_address: Wallet address to get token balances for
             
         Returns:
-            float: The SOL balance.
+            List[Dict[str, Any]]: Token balance information
         """
-        if isinstance(public_key, str):
-            public_key = PublicKey(public_key)
+        try:
+            # In a real implementation, this would call the Solana RPC API
+            # For MVP, return mock data
+            
+            # Mock token data
+            tokens = [
+                {"symbol": "USDC", "name": "USD Coin", "mint": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v", "decimals": 6, "logo": "usdc.png"},
+                {"symbol": "USDT", "name": "Tether", "mint": "Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB", "decimals": 6, "logo": "usdt.png"},
+                {"symbol": "RAY", "name": "Raydium", "mint": "4k3Dyjzvzp8eMZWUXbBCjEvwSkkk59S5iCNLY3QrkX6R", "decimals": 6, "logo": "ray.png"},
+                {"symbol": "SRM", "name": "Serum", "mint": "SRMuApVNdxXokk5GT7XD5cUUgXMBCoAz2LHeuAoKWRt", "decimals": 6, "logo": "srm.png"},
+                {"symbol": "BONK", "name": "Bonk", "mint": "DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263", "decimals": 5, "logo": "bonk.png"},
+                {"symbol": "JTO", "name": "Jito", "mint": "J1toso1uCk3RLmjorhTtrVwY9HJ7X8V9yYac6Y7kGCPn", "decimals": 9, "logo": "jito.png"},
+            ]
+            
+            # Generate random balances
+            results = []
+            for token in tokens:
+                if random.random() < 0.7:  # 70% chance to have this token
+                    # Calculate a random amount
+                    amount = random.uniform(1, 1000)
+                    if token["symbol"] == "BONK":
+                        amount = amount * 1000000  # Meme coins have higher amounts
+                    
+                    # Price in USD
+                    price_usd = 0
+                    if token["symbol"] == "USDC" or token["symbol"] == "USDT":
+                        price_usd = 1.0
+                    elif token["symbol"] == "RAY":
+                        price_usd = random.uniform(0.5, 1.5)
+                    elif token["symbol"] == "SRM":
+                        price_usd = random.uniform(0.1, 0.5)
+                    elif token["symbol"] == "BONK":
+                        price_usd = random.uniform(0.000005, 0.00001)
+                    elif token["symbol"] == "JTO":
+                        price_usd = random.uniform(1.5, 3.0)
+                    
+                    results.append({
+                        "address": wallet_address,
+                        "mint": token["mint"],
+                        "symbol": token["symbol"],
+                        "name": token["name"],
+                        "amount": amount,
+                        "decimals": token["decimals"],
+                        "value_usd": amount * price_usd,
+                        "price_usd": price_usd
+                    })
+            
+            logger.info(f"Got mock token balances for {wallet_address}: {len(results)} tokens")
+            
+            return results
         
-        response = await self.async_client.get_balance(public_key)
-        if "result" in response and "value" in response["result"]:
-            # Convert lamports to SOL (1 SOL = 10^9 lamports)
-            return response["result"]["value"] / 10**9
-        else:
-            logger.error(f"Failed to get balance: {response}")
-            return 0.0
+        except Exception as e:
+            logger.error(f"Error getting token balances: {str(e)}")
+            return [{"error": f"Error getting token balances: {str(e)}"}]
     
-    def get_account_info(self, public_key: Union[str, PublicKey]) -> Dict[str, Any]:
+    def get_transaction_history(self, wallet_address: str, limit: int = 10) -> List[Dict[str, Any]]:
         """
-        Get information about an account.
+        Get transaction history for a wallet (mock implementation).
         
         Args:
-            public_key: The public key of the account.
+            wallet_address: Wallet address to get transaction history for
+            limit: Maximum number of transactions to return
             
         Returns:
-            Dict[str, Any]: The account information.
+            List[Dict[str, Any]]: Transaction information
         """
-        if isinstance(public_key, str):
-            public_key = PublicKey(public_key)
-        
-        response = self.client.get_account_info(public_key)
-        if "result" in response and "value" in response["result"]:
-            return response["result"]["value"]
-        else:
-            logger.error(f"Failed to get account info: {response}")
-            return {}
-    
-    async def get_account_info_async(self, public_key: Union[str, PublicKey]) -> Dict[str, Any]:
-        """
-        Get information about an account asynchronously.
-        
-        Args:
-            public_key: The public key of the account.
+        try:
+            # In a real implementation, this would call the Solana RPC API
+            # For MVP, return mock data
             
-        Returns:
-            Dict[str, Any]: The account information.
-        """
-        if isinstance(public_key, str):
-            public_key = PublicKey(public_key)
-        
-        response = await self.async_client.get_account_info(public_key)
-        if "result" in response and "value" in response["result"]:
-            return response["result"]["value"]
-        else:
-            logger.error(f"Failed to get account info: {response}")
-            return {}
-    
-    def create_keypair(self) -> Keypair:
-        """
-        Create a new Solana keypair.
-        
-        Returns:
-            Keypair: The generated keypair.
-        """
-        return Keypair()
-    
-    def get_token_accounts(self, owner: Union[str, PublicKey]) -> List[Dict[str, Any]]:
-        """
-        Get all token accounts owned by an address.
-        
-        Args:
-            owner: The owner's public key.
+            # Transaction types
+            tx_types = ["transfer", "swap", "stake", "unstake", "harvest"]
             
-        Returns:
-            List[Dict[str, Any]]: List of token accounts.
-        """
-        if isinstance(owner, str):
-            owner = PublicKey(owner)
-        
-        response = self.client.get_token_accounts_by_owner(
-            owner,
-            {"programId": PublicKey("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA")},
-        )
-        
-        if "result" in response and "value" in response["result"]:
-            return response["result"]["value"]
-        else:
-            logger.error(f"Failed to get token accounts: {response}")
-            return []
-    
-    async def get_token_accounts_async(self, owner: Union[str, PublicKey]) -> List[Dict[str, Any]]:
-        """
-        Get all token accounts owned by an address asynchronously.
-        
-        Args:
-            owner: The owner's public key.
+            # Mock protocols
+            protocols = ["Raydium", "Orca", "Jupiter", "Marinade", "Lido", "Jito", "Solend"]
             
-        Returns:
-            List[Dict[str, Any]]: List of token accounts.
-        """
-        if isinstance(owner, str):
-            owner = PublicKey(owner)
+            # Mock tokens
+            tokens = ["SOL", "USDC", "USDT", "RAY", "SRM", "BONK", "JTO"]
+            
+            # Generate random transactions
+            results = []
+            for _ in range(limit):
+                # Random time in the past 30 days
+                days_ago = random.randint(0, 30)
+                hours_ago = random.randint(0, 23)
+                minutes_ago = random.randint(0, 59)
+                seconds_ago = random.randint(0, 59)
+                
+                timestamp = datetime.datetime.now() - datetime.timedelta(
+                    days=days_ago,
+                    hours=hours_ago,
+                    minutes=minutes_ago,
+                    seconds=seconds_ago
+                )
+                
+                # Random transaction type
+                tx_type = random.choice(tx_types)
+                
+                # Random protocol
+                protocol = random.choice(protocols)
+                
+                # Random tokens
+                token = random.choice(tokens)
+                
+                # Random amount
+                amount = random.uniform(0.1, 100)
+                
+                # Random signature
+                signature = "".join(random.choice("123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz") for _ in range(88))
+                
+                results.append({
+                    "signature": signature,
+                    "type": tx_type,
+                    "protocol": protocol,
+                    "token": token,
+                    "amount": amount,
+                    "timestamp": timestamp.isoformat(),
+                    "fee": 0.000005,
+                    "status": "confirmed"
+                })
+            
+            # Sort by timestamp (newest first)
+            results.sort(key=lambda x: x["timestamp"], reverse=True)
+            
+            logger.info(f"Got mock transaction history for {wallet_address}: {len(results)} transactions")
+            
+            return results
         
-        response = await self.async_client.get_token_accounts_by_owner(
-            owner,
-            {"programId": PublicKey("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA")},
-        )
-        
-        if "result" in response and "value" in response["result"]:
-            return response["result"]["value"]
-        else:
-            logger.error(f"Failed to get token accounts: {response}")
-            return []
-    
-    def close(self) -> None:
-        """Close the client connections."""
-        if self._async_client:
-            asyncio.create_task(self._async_client.close())
-            self._async_client = None
-        
-        if self._client:
-            # The synchronous client doesn't have a close method,
-            # but we set it to None to allow garbage collection
-            self._client = None
-        
-        logger.info("Closed Solana client connections")
-
-
-# Create a default Solana client manager instance
-solana_client_manager = SolanaClientManager(network_type=NetworkType.MAINNET) 
+        except Exception as e:
+            logger.error(f"Error getting transaction history: {str(e)}")
+            return [{"error": f"Error getting transaction history: {str(e)}"}] 

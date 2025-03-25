@@ -66,12 +66,28 @@ class WalletManager:
         """Initialize blockchain clients asynchronously."""
         # Initialize Solana client if available
         if SOLANA_AVAILABLE:
-            solana_rpc_url = os.environ.get("SOLANA_RPC_URL", "https://api.mainnet-beta.solana.com")
+            # Prioritize Alchemy Solana URL if available
+            solana_rpc_url = os.environ.get("ALCHEMY_SOLANA_URL")
+            if not solana_rpc_url:
+                solana_rpc_url = os.environ.get("SOLANA_RPC_URL", "https://api.mainnet-beta.solana.com")
+            
+            print(f"Connecting to Solana via: {solana_rpc_url.split('/v2/')[0]}/v2/...")
             self.solana_client = SolanaAsyncClient(solana_rpc_url)
             
         # Initialize Ethereum client if available
         if ETHEREUM_AVAILABLE:
-            eth_rpc_url = os.environ.get("ETHEREUM_RPC_URL", "https://mainnet.infura.io/v3/YOUR_PROJECT_ID")
+            # Prioritize direct Ethereum RPC URL setting
+            eth_rpc_url = os.environ.get("ETHEREUM_RPC_URL")
+            
+            # If not set but Alchemy API key is available, use that
+            if not eth_rpc_url:
+                alchemy_key = os.environ.get("ALCHEMY_API_KEY")
+                if alchemy_key:
+                    eth_rpc_url = f"https://eth-mainnet.g.alchemy.com/v2/{alchemy_key}"
+                else:
+                    eth_rpc_url = "https://mainnet.infura.io/v3/YOUR_PROJECT_ID"
+            
+            print(f"Connecting to Ethereum via: {eth_rpc_url.split('/v2/')[0] if '/v2/' in eth_rpc_url else eth_rpc_url}/...")
             self.ethereum_client = Web3(AsyncHTTPProvider(eth_rpc_url), modules={"eth": (AsyncEth,)})
     
     def create_wallet(self, chain: str, name: str) -> Dict[str, Any]:

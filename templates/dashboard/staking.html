@@ -1,0 +1,413 @@
+{% extends "base.html" %}
+
+{% block title %}Staking - HiramAbiff Yield Dashboard{% endblock %}
+
+{% block content %}
+<div id="staking-view" class="dashboard-view">
+    <!-- Staking Summary Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3 mb-md-0">
+            <div class="card shadow-sm h-100">
+                <div class="card-body text-center">
+                    <h6 class="text-muted mb-2">Total Staked</h6>
+                    <h2 class="mb-2" id="total-staked-value">$0.00</h2>
+                    <div id="staked-value-change" class="small text-success">
+                        <i class="fas fa-caret-up"></i> 0.00%
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3 mb-md-0">
+            <div class="card shadow-sm h-100">
+                <div class="card-body text-center">
+                    <h6 class="text-muted mb-2">Staking APY</h6>
+                    <h2 class="mb-2" id="staking-apy">0.00%</h2>
+                    <div id="staking-apy-change" class="small text-success">
+                        <i class="fas fa-caret-up"></i> 0.00%
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3 mb-md-0">
+            <div class="card shadow-sm h-100">
+                <div class="card-body text-center">
+                    <h6 class="text-muted mb-2">Claimable Rewards</h6>
+                    <h2 class="mb-2" id="claimable-rewards">$0.00</h2>
+                    <div class="small text-muted">
+                        <span id="rewards-token">0 HIRAM</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card shadow-sm h-100">
+                <div class="card-body text-center">
+                    <h6 class="text-muted mb-2">Staking Period</h6>
+                    <h2 class="mb-2" id="staking-period">0 days</h2>
+                    <div class="small text-muted" id="staking-unlock">
+                        Unlocks: --
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Staking Content -->
+    <div class="row">
+        <!-- Left Column -->
+        <div class="col-md-8 mb-4 mb-md-0">
+            <!-- Staking Interface -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Stake HIRAM Tokens</h5>
+                </div>
+                <div class="card-body">
+                    <div id="wallet-not-connected" class="text-center py-5">
+                        <i class="fas fa-wallet fa-3x text-muted mb-3"></i>
+                        <h5 class="mb-3">Connect Your Wallet</h5>
+                        <p class="text-muted mb-3">Connect your wallet to stake HIRAM tokens and earn rewards.</p>
+                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#walletModal">
+                            <i class="fas fa-link me-2"></i>Connect Now
+                        </button>
+                    </div>
+                    
+                    <div id="staking-interface" class="d-none">
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <div class="card bg-light border-0">
+                                    <div class="card-body">
+                                        <h5 class="card-title">Your HIRAM Balance</h5>
+                                        <div class="d-flex justify-content-between align-items-center mb-3">
+                                            <div>
+                                                <span id="hiram-balance" class="fs-3 fw-bold">0.00</span>
+                                                <span class="ms-2">HIRAM</span>
+                                            </div>
+                                            <img src="{{ url_for('static', filename='img/hiram-token.png') }}" alt="HIRAM Token" width="40" class="rounded-circle">
+                                        </div>
+                                        <div class="text-muted mb-3">~$<span id="hiram-usd-value">0.00</span></div>
+                                        <button class="btn btn-primary w-100" id="refreshBalanceBtn">
+                                            <i class="fas fa-sync-alt me-1"></i>Refresh Balance
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card bg-light border-0">
+                                    <div class="card-body">
+                                        <h5 class="card-title">Currently Staked</h5>
+                                        <div class="d-flex justify-content-between align-items-center mb-3">
+                                            <div>
+                                                <span id="hiram-staked" class="fs-3 fw-bold">0.00</span>
+                                                <span class="ms-2">HIRAM</span>
+                                            </div>
+                                            <i class="fas fa-lock fs-4 text-primary"></i>
+                                        </div>
+                                        <div class="text-muted mb-3">~$<span id="hiram-staked-value">0.00</span></div>
+                                        <button class="btn btn-success w-100" id="claimRewardsBtn" disabled>
+                                            <i class="fas fa-hand-holding-usd me-1"></i>Claim Rewards
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-body">
+                                <ul class="nav nav-tabs mb-4" id="stakingTabs" role="tablist">
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link active" id="stake-tab" data-bs-toggle="tab" data-bs-target="#stake-content" type="button" role="tab" aria-controls="stake-content" aria-selected="true">Stake</button>
+                                    </li>
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link" id="unstake-tab" data-bs-toggle="tab" data-bs-target="#unstake-content" type="button" role="tab" aria-controls="unstake-content" aria-selected="false">Unstake</button>
+                                    </li>
+                                </ul>
+                                <div class="tab-content" id="stakingTabsContent">
+                                    <!-- Stake Tab -->
+                                    <div class="tab-pane fade show active" id="stake-content" role="tabpanel" aria-labelledby="stake-tab">
+                                        <form id="stakeForm">
+                                            <div class="mb-3">
+                                                <label for="stakeAmount" class="form-label">Amount to Stake</label>
+                                                <div class="input-group">
+                                                    <input type="number" class="form-control form-control-lg" id="stakeAmount" placeholder="0.00" min="0">
+                                                    <span class="input-group-text">HIRAM</span>
+                                                    <button type="button" class="btn btn-outline-primary" id="maxStakeBtn">MAX</button>
+                                                </div>
+                                                <div class="form-text">Available: <span id="available-to-stake">0.00</span> HIRAM</div>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="stakePeriod" class="form-label">Staking Period</label>
+                                                <select class="form-select form-select-lg" id="stakePeriod">
+                                                    <option value="30">30 days (5% APY)</option>
+                                                    <option value="90">90 days (7.5% APY)</option>
+                                                    <option value="180">180 days (10% APY)</option>
+                                                    <option value="365" selected>365 days (15% APY)</option>
+                                                </select>
+                                            </div>
+                                            <div class="card bg-light mb-4">
+                                                <div class="card-body">
+                                                    <div class="d-flex justify-content-between mb-2">
+                                                        <span class="text-muted">Est. Daily Rewards:</span>
+                                                        <span id="est-daily-rewards">0.00 HIRAM</span>
+                                                    </div>
+                                                    <div class="d-flex justify-content-between mb-2">
+                                                        <span class="text-muted">Est. Monthly Rewards:</span>
+                                                        <span id="est-monthly-rewards">0.00 HIRAM</span>
+                                                    </div>
+                                                    <div class="d-flex justify-content-between">
+                                                        <span class="text-muted">Est. Total Rewards:</span>
+                                                        <span id="est-total-rewards">0.00 HIRAM</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <button type="button" class="btn btn-primary btn-lg w-100" id="stakeTokensBtn">
+                                                <i class="fas fa-lock me-2"></i>Stake Tokens
+                                            </button>
+                                        </form>
+                                    </div>
+                                    
+                                    <!-- Unstake Tab -->
+                                    <div class="tab-pane fade" id="unstake-content" role="tabpanel" aria-labelledby="unstake-tab">
+                                        <form id="unstakeForm">
+                                            <div class="mb-3">
+                                                <label for="unstakeAmount" class="form-label">Amount to Unstake</label>
+                                                <div class="input-group">
+                                                    <input type="number" class="form-control form-control-lg" id="unstakeAmount" placeholder="0.00" min="0">
+                                                    <span class="input-group-text">HIRAM</span>
+                                                    <button type="button" class="btn btn-outline-primary" id="maxUnstakeBtn">MAX</button>
+                                                </div>
+                                                <div class="form-text">Staked: <span id="available-to-unstake">0.00</span> HIRAM</div>
+                                            </div>
+                                            <div class="alert alert-warning" id="early-unstake-warning" style="display: none;">
+                                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                                <span>Early unstaking will incur a penalty of <strong><span id="unstake-penalty">0</span>%</strong> of rewards.</span>
+                                            </div>
+                                            <button type="button" class="btn btn-danger btn-lg w-100" id="unstakeTokensBtn">
+                                                <i class="fas fa-unlock me-2"></i>Unstake Tokens
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Staking History -->
+            <div class="card shadow-sm">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">Staking History</h5>
+                    <button class="btn btn-sm btn-outline-primary" id="refreshHistoryBtn">
+                        <i class="fas fa-sync-alt me-1"></i>Refresh
+                    </button>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0" id="stakingHistoryTable">
+                            <thead class="table-light">
+                                <tr>
+                                    <th scope="col">Date</th>
+                                    <th scope="col">Type</th>
+                                    <th scope="col">Amount</th>
+                                    <th scope="col">Period</th>
+                                    <th scope="col">Status</th>
+                                    <th scope="col">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="stakingHistoryTableBody">
+                                <tr>
+                                    <td colspan="6" class="text-center py-4">
+                                        <div class="loading-spinner mb-3"></div>
+                                        <p class="text-muted">Loading staking history...</p>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Right Column -->
+        <div class="col-md-4">
+            <!-- Rewards Chart -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Rewards History</h5>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container" style="position: relative; height: 200px;">
+                        <canvas id="rewardsChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Staking Info -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Staking Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <h6 class="mb-2">APY Tiers</h6>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>30 days:</span>
+                            <span class="text-success">5.0% APY</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>90 days:</span>
+                            <span class="text-success">7.5% APY</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>180 days:</span>
+                            <span class="text-success">10.0% APY</span>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <span>365 days:</span>
+                            <span class="text-success">15.0% APY</span>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="mb-3">
+                        <h6 class="mb-2">Staking Rules</h6>
+                        <ul class="mb-0 ps-3">
+                            <li class="mb-2">Minimum stake: 100 HIRAM</li>
+                            <li class="mb-2">Rewards are distributed daily</li>
+                            <li class="mb-2">Early unstaking incurs a penalty on rewards</li>
+                            <li>Transaction fee: 0.1% (min. 1 HIRAM)</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Fee History -->
+            <div class="card shadow-sm">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Fee History</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0" id="feeHistoryTable">
+                            <thead class="table-light">
+                                <tr>
+                                    <th scope="col">Date</th>
+                                    <th scope="col">Type</th>
+                                    <th scope="col">Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody id="feeHistoryTableBody">
+                                <tr>
+                                    <td colspan="3" class="text-center py-4">
+                                        <div class="loading-spinner mb-3"></div>
+                                        <p class="text-muted">Loading fee history...</p>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Staking Success Modal -->
+<div class="modal fade" id="stakingSuccessModal" tabindex="-1" aria-labelledby="stakingSuccessModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-body text-center py-4">
+                <div class="mb-3">
+                    <i class="fas fa-check-circle fa-4x text-success"></i>
+                </div>
+                <h4 class="mb-3" id="stakingSuccessTitle">Success!</h4>
+                <p class="mb-4" id="stakingSuccessMessage">Your tokens have been staked successfully.</p>
+                <div class="d-flex justify-content-center">
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Transaction Details Modal -->
+<div class="modal fade" id="transactionDetailsModal" tabindex="-1" aria-labelledby="transactionDetailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="transactionDetailsModalLabel">Transaction Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label text-muted">Transaction Hash</label>
+                    <div class="input-group">
+                        <input type="text" class="form-control" id="transactionHash" readonly>
+                        <button class="btn btn-outline-secondary" type="button" id="copyHashBtn">
+                            <i class="fas fa-copy"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label text-muted">Type</label>
+                    <div id="transactionType" class="fs-5">-</div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label text-muted">Amount</label>
+                    <div id="transactionAmount" class="fs-5">-</div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label text-muted">Date</label>
+                    <div id="transactionDate" class="fs-5">-</div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label text-muted">Status</label>
+                    <div id="transactionStatus" class="fs-5">-</div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label text-muted">Fee</label>
+                    <div id="transactionFee" class="fs-5">-</div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="viewExplorerBtn">View in Explorer</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Check wallet connection
+    checkWalletConnection();
+    
+    // Setup event listeners
+    document.getElementById('refreshBalanceBtn').addEventListener('click', refreshBalance);
+    document.getElementById('refreshHistoryBtn').addEventListener('click', loadStakingHistory);
+    document.getElementById('maxStakeBtn').addEventListener('click', setMaxStakeAmount);
+    document.getElementById('maxUnstakeBtn').addEventListener('click', setMaxUnstakeAmount);
+    document.getElementById('stakeTokensBtn').addEventListener('click', stakeTokens);
+    document.getElementById('unstakeTokensBtn').addEventListener('click', unstakeTokens);
+    document.getElementById('claimRewardsBtn').addEventListener('click', claimRewards);
+    document.getElementById('copyHashBtn').addEventListener('click', copyTransactionHash);
+    
+    // Amount input event listeners
+    document.getElementById('stakeAmount').addEventListener('input', updateStakeEstimates);
+    document.getElementById('stakePeriod').addEventListener('change', updateStakeEstimates);
+    document.getElementById('unstakeAmount').addEventListener('input', checkUnstakePenalty);
+    
+    // Wallet connected event
+    document.addEventListener('walletConnected', function() {
+        checkWalletConnection();
+    });
+});
+
+// Check wallet connection
+function checkWalletConnection() {
+    // Implementation would check if wallet is connected
+    console.log('Checking wallet connection...');
+}
+</script>
+{% endblock %} 

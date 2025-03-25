@@ -1,0 +1,515 @@
+{% extends "base.html" %}
+
+{% block title %}HiramAbiff Yield Dashboard{% endblock %}
+
+{% block content %}
+<div id="dashboard-view" class="dashboard-view">
+    <!-- Summary Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3 mb-md-0">
+            <div class="card shadow-sm h-100">
+                <div class="card-body text-center">
+                    <h6 class="text-muted mb-2">Total Value</h6>
+                    <h2 class="mb-2" id="total-value">$0.00</h2>
+                    <div id="total-value-change" class="small text-success">
+                        <i class="fas fa-caret-up"></i> 0.00%
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3 mb-md-0">
+            <div class="card shadow-sm h-100">
+                <div class="card-body text-center">
+                    <h6 class="text-muted mb-2">Average APY</h6>
+                    <h2 class="mb-2" id="avg-apy">0.00%</h2>
+                    <div id="avg-apy-change" class="small text-success">
+                        <i class="fas fa-caret-up"></i> 0.00%
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3 mb-md-0">
+            <div class="card shadow-sm h-100">
+                <div class="card-body text-center">
+                    <h6 class="text-muted mb-2">Active Strategies</h6>
+                    <h2 class="mb-2" id="active-strategies">0</h2>
+                    <div class="small text-muted">
+                        <span id="active-chains">0</span> chains
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card shadow-sm h-100">
+                <div class="card-body text-center">
+                    <h6 class="text-muted mb-2">Risk Level</h6>
+                    <h2 class="mb-2" id="risk-level">Medium</h2>
+                    <div class="small text-muted">
+                        Score: <span id="risk-score">5.0</span>/10
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Dashboard Content -->
+    <div class="row">
+        <!-- Left Column -->
+        <div class="col-md-8">
+            <!-- Portfolio Performance -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Portfolio Performance</h5>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container" style="position: relative; height: 300px;">
+                        <canvas id="portfolioChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Top Opportunities -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">Top Opportunities</h5>
+                    <a href="/market" class="btn btn-sm btn-primary">View All</a>
+                </div>
+                <div class="card-body p-0">
+                    <div id="top-opportunities">
+                        <!-- Top opportunities will be loaded here -->
+                        <div class="text-center py-4">
+                            <div class="loading-spinner mb-3"></div>
+                            <p class="text-muted">Loading top opportunities...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column -->
+        <div class="col-md-4">
+            <!-- Wallet Section -->
+            <div id="wallet-section" class="card shadow-sm mb-4 d-none">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Wallet Summary</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between mb-3">
+                        <div class="text-muted">Balance:</div>
+                        <div id="wallet-balance" class="fw-bold">$0.00</div>
+                    </div>
+                    <div class="d-flex justify-content-between mb-3">
+                        <div class="text-muted">Staked Value:</div>
+                        <div id="wallet-staked-value" class="fw-bold">$0.00</div>
+                    </div>
+                    <div class="d-flex justify-content-between mb-3">
+                        <div class="text-muted">Est. Yield:</div>
+                        <div id="wallet-yield" class="fw-bold text-success">$0.00/yr</div>
+                    </div>
+                    <hr>
+                    <h6 class="mb-3">Assets</h6>
+                    <div id="wallet-tokens-list">
+                        <div class="text-center text-muted py-3">
+                            <p>No tokens found in wallet</p>
+                        </div>
+                    </div>
+                    <hr>
+                    <h6 class="mb-3">Staked Assets</h6>
+                    <div id="wallet-staked-list">
+                        <div class="text-center text-muted py-3">
+                            <p>No staked assets found</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Wallet Connect Prompt -->
+            <div id="wallet-connect-prompt" class="card shadow-sm mb-4">
+                <div class="card-body text-center py-4">
+                    <i class="fas fa-wallet fa-3x text-primary mb-3"></i>
+                    <h5 class="mb-3">Connect Your Wallet</h5>
+                    <p class="text-muted mb-3">Connect your wallet to view your assets and portfolio</p>
+                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#walletModal">
+                        <i class="fas fa-link me-2"></i>Connect Now
+                    </button>
+                </div>
+            </div>
+
+            <!-- AI Insights -->
+            <div class="card shadow-sm">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">AI Insights</h5>
+                    <button class="btn btn-sm btn-outline-primary" id="refresh-insights-btn">
+                        <i class="fas fa-sync-alt me-1"></i>Refresh
+                    </button>
+                </div>
+                <div class="card-body" id="insights-container">
+                    <div class="text-center py-4">
+                        <div class="loading-spinner mb-3"></div>
+                        <p class="text-muted">Generating insights...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Initialize dashboard data on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        // Fetch dashboard data
+        fetchDashboardData();
+        
+        // Initialize portfolio chart
+        initPortfolioChart();
+        
+        // Load top opportunities
+        loadTopOpportunities();
+        
+        // Setup event listeners
+        document.getElementById('refresh-opportunities').addEventListener('click', loadTopOpportunities);
+        document.getElementById('refresh-insights').addEventListener('click', refreshAIInsights);
+        document.getElementById('connectWalletBtn2').addEventListener('click', connectWallet);
+        
+        // Chart period buttons
+        document.getElementById('chart-1d').addEventListener('click', function() { updateChartPeriod('1d'); });
+        document.getElementById('chart-1w').addEventListener('click', function() { updateChartPeriod('1w'); });
+        document.getElementById('chart-1m').addEventListener('click', function() { updateChartPeriod('1m'); });
+        document.getElementById('chart-1y').addEventListener('click', function() { updateChartPeriod('1y'); });
+        document.getElementById('chart-all').addEventListener('click', function() { updateChartPeriod('all'); });
+    });
+    
+    // Fetch dashboard data
+    function fetchDashboardData() {
+        fetch('/api/dashboard')
+            .then(response => response.json())
+            .then(data => {
+                // Update summary cards
+                document.getElementById('total-value').innerText = '$' + formatNumber(data.total_value);
+                document.getElementById('total-value-change').innerText = formatPercentage(data.total_value_change);
+                document.getElementById('avg-apy').innerText = formatPercentage(data.avg_apy);
+                document.getElementById('avg-apy-change').innerText = formatPercentage(data.avg_apy_change);
+                document.getElementById('active-strategies').innerText = data.active_strategies;
+                document.getElementById('active-chains').innerText = data.active_chains + ' chains';
+                document.getElementById('risk-level').innerText = data.risk_level;
+                document.getElementById('risk-score').innerText = 'Score: ' + data.risk_score + '/10';
+                
+                // Apply color class to change values
+                applyColorClass('total-value-change', data.total_value_change);
+                applyColorClass('avg-apy-change', data.avg_apy_change);
+                
+                // Update wallet summary if connected
+                if (data.wallet_connected) {
+                    document.getElementById('wallet-connect-prompt').classList.add('d-none');
+                    document.getElementById('wallet-assets').classList.remove('d-none');
+                    
+                    document.getElementById('wallet-balance').innerText = '$' + formatNumber(data.wallet_balance);
+                    document.getElementById('wallet-staked').innerText = '$' + formatNumber(data.wallet_staked);
+                    document.getElementById('wallet-yield').innerText = '$' + formatNumber(data.wallet_yield) + 
+                        ' (' + formatPercentage(data.wallet_yield_pct) + ')';
+                    
+                    // Render tokens
+                    renderWalletTokens(data.wallet_tokens);
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching dashboard data:', error);
+            });
+    }
+    
+    // Initialize portfolio chart
+    function initPortfolioChart() {
+        fetch('/api/portfolio/performance')
+            .then(response => response.json())
+            .then(data => {
+                const ctx = document.getElementById('portfolioChart').getContext('2d');
+                
+                // Parse dates and values
+                const dates = data.data.map(item => item.date);
+                const values = data.data.map(item => item.value);
+                
+                new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: dates,
+                        datasets: [{
+                            label: 'Portfolio Value',
+                            data: values,
+                            backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                            borderColor: 'rgba(54, 162, 235, 1)',
+                            borderWidth: 2,
+                            pointRadius: 1,
+                            tension: 0.1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            tooltip: {
+                                mode: 'index',
+                                intersect: false,
+                                callbacks: {
+                                    label: function(context) {
+                                        return 'Value: $' + formatNumber(context.raw);
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                grid: {
+                                    display: false
+                                }
+                            },
+                            y: {
+                                beginAtZero: false,
+                                grid: {
+                                    color: 'rgba(0, 0, 0, 0.05)'
+                                },
+                                ticks: {
+                                    callback: function(value) {
+                                        return '$' + formatNumber(value);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            })
+            .catch(error => {
+                console.error('Error initializing portfolio chart:', error);
+            });
+    }
+    
+    // Load top opportunities
+    function loadTopOpportunities() {
+        fetch('/api/opportunities?limit=5')
+            .then(response => response.json())
+            .then(data => {
+                const tableBody = document.getElementById('opportunitiesTableBody');
+                tableBody.innerHTML = '';
+                
+                data.forEach(opportunity => {
+                    const row = document.createElement('tr');
+                    
+                    // Risk class based on level
+                    let riskClass = 'badge bg-success';
+                    if (opportunity.risk_level === 'Medium') {
+                        riskClass = 'badge bg-warning text-dark';
+                    } else if (opportunity.risk_level === 'High' || opportunity.risk_level === 'Very High') {
+                        riskClass = 'badge bg-danger';
+                    }
+                    
+                    row.innerHTML = `
+                        <td>${opportunity.project}</td>
+                        <td>${opportunity.chain}</td>
+                        <td>${opportunity.symbol}</td>
+                        <td class="text-success">${formatPercentage(opportunity.apy)}</td>
+                        <td>$${formatNumber(opportunity.tvlUsd)}</td>
+                        <td><span class="${riskClass}">${opportunity.risk_level}</span></td>
+                        <td>
+                            <button class="btn btn-sm btn-primary invest-btn" data-id="${opportunity.pool}">
+                                Invest
+                            </button>
+                        </td>
+                    `;
+                    
+                    tableBody.appendChild(row);
+                });
+                
+                // Add event listeners to invest buttons
+                const investButtons = document.querySelectorAll('.invest-btn');
+                investButtons.forEach(button => {
+                    button.addEventListener('click', function() {
+                        const opportunityId = this.getAttribute('data-id');
+                        openInvestModal(opportunityId);
+                    });
+                });
+            })
+            .catch(error => {
+                console.error('Error loading opportunities:', error);
+                document.getElementById('opportunitiesTableBody').innerHTML = `
+                    <tr>
+                        <td colspan="7" class="text-center text-danger">
+                            Error loading opportunities. Please try again.
+                        </td>
+                    </tr>
+                `;
+            });
+    }
+    
+    // Refresh AI insights
+    function refreshAIInsights() {
+        fetch('/api/generate-insights')
+            .then(response => response.json())
+            .then(data => {
+                const insightsContainer = document.getElementById('ai-insights');
+                insightsContainer.innerHTML = '';
+                
+                data.insights.forEach(insight => {
+                    // Determine icon based on type
+                    let icon = 'lightbulb';
+                    let iconClass = 'warning';
+                    
+                    if (insight.type === 'trend') {
+                        icon = 'chart-line';
+                        iconClass = 'success';
+                    } else if (insight.type === 'warning') {
+                        icon = 'exclamation-triangle';
+                        iconClass = 'danger';
+                    } else if (insight.type === 'opportunity') {
+                        icon = 'rocket';
+                        iconClass = 'primary';
+                    }
+                    
+                    const insightCard = document.createElement('div');
+                    insightCard.className = 'insight-card mb-3 p-3 border rounded';
+                    insightCard.innerHTML = `
+                        <div class="d-flex align-items-start">
+                            <i class="fas fa-${icon} text-${iconClass} me-2 mt-1"></i>
+                            <div>
+                                <h6 class="mb-1">${insight.title}</h6>
+                                <p class="mb-0">${insight.content}</p>
+                            </div>
+                        </div>
+                    `;
+                    
+                    insightsContainer.appendChild(insightCard);
+                });
+            })
+            .catch(error => {
+                console.error('Error refreshing insights:', error);
+            });
+    }
+    
+    // Update chart period
+    function updateChartPeriod(period) {
+        // Update active button
+        const buttons = document.querySelectorAll('#chart-1d, #chart-1w, #chart-1m, #chart-1y, #chart-all');
+        buttons.forEach(button => button.classList.remove('active'));
+        document.getElementById(`chart-${period}`).classList.add('active');
+        
+        // Fetch data for the selected period
+        fetch(`/api/portfolio/performance?period=${period}`)
+            .then(response => response.json())
+            .then(data => {
+                // Update chart data
+                // (Assuming the chart is accessible globally - in a real implementation,
+                // you would need to store the chart instance or use Chart.js API to update it)
+            })
+            .catch(error => {
+                console.error('Error updating chart period:', error);
+            });
+    }
+    
+    // Render wallet tokens
+    function renderWalletTokens(tokens) {
+        const container = document.getElementById('wallet-tokens');
+        container.innerHTML = '';
+        
+        if (!tokens || tokens.length === 0) {
+            container.innerHTML = `
+                <div class="text-center text-muted">
+                    <p>No assets found</p>
+                </div>
+            `;
+            return;
+        }
+        
+        tokens.forEach(token => {
+            const tokenItem = document.createElement('div');
+            tokenItem.className = 'mb-3';
+            
+            const priceChangeClass = token.price_change_24h >= 0 ? 'text-success' : 'text-danger';
+            const priceChangeIcon = token.price_change_24h >= 0 ? 'caret-up' : 'caret-down';
+            
+            tokenItem.innerHTML = `
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                    <div class="d-flex align-items-center">
+                        <img src="${token.logo_url}" alt="${token.symbol}" width="24" height="24" class="me-2">
+                        <span>${token.symbol}</span>
+                    </div>
+                    <span>${formatNumber(token.amount)}</span>
+                </div>
+                <div class="d-flex justify-content-between small">
+                    <span class="text-muted">$${formatNumber(token.value_usd)}</span>
+                    <span class="${priceChangeClass}">
+                        <i class="fas fa-${priceChangeIcon}"></i> ${Math.abs(token.price_change_24h).toFixed(2)}%
+                    </span>
+                </div>
+            `;
+            
+            container.appendChild(tokenItem);
+        });
+    }
+    
+    // Open invest modal
+    function openInvestModal(opportunityId) {
+        // Implementation would depend on your modal system
+        console.log('Opening invest modal for opportunity:', opportunityId);
+        // This would typically fetch opportunity details and show a modal
+    }
+    
+    // Connect wallet function
+    function connectWallet() {
+        // Simulate wallet connection
+        // In a real implementation, this would integrate with wallet providers
+        fetch('/api/connect-wallet', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                wallet_type: 'phantom'
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Refresh dashboard data
+                fetchDashboardData();
+                
+                // Update nav wallet display
+                document.getElementById('walletInfo').classList.remove('d-none');
+                document.getElementById('connectWalletBtn').classList.add('d-none');
+                
+                // Show truncated address
+                const address = data.wallet_address;
+                const truncatedAddress = address.substring(0, 4) + '...' + address.substring(address.length - 4);
+                document.getElementById('walletAddress').innerText = truncatedAddress;
+            } else {
+                alert('Failed to connect wallet: ' + data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Error connecting wallet:', error);
+            alert('Error connecting wallet. Please try again.');
+        });
+    }
+    
+    // Helper functions
+    function formatNumber(number) {
+        return parseFloat(number).toLocaleString(undefined, {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
+    }
+    
+    function formatPercentage(number) {
+        const value = parseFloat(number);
+        const sign = value >= 0 ? '+' : '';
+        return sign + value.toFixed(2) + '%';
+    }
+    
+    function applyColorClass(elementId, value) {
+        const element = document.getElementById(elementId);
+        element.className = value >= 0 ? 'card-text text-success' : 'card-text text-danger';
+    }
+</script>
+{% endblock %} 

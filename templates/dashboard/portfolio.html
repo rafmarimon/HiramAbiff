@@ -1,0 +1,330 @@
+{% extends "base.html" %}
+
+{% block title %}Portfolio - HiramAbiff Yield Dashboard{% endblock %}
+
+{% block content %}
+<div id="portfolio-view" class="dashboard-view">
+    <!-- Portfolio Summary Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3 mb-md-0">
+            <div class="card shadow-sm h-100">
+                <div class="card-body text-center">
+                    <h6 class="text-muted mb-2">Portfolio Value</h6>
+                    <h2 class="mb-2" id="portfolio-total-value">$0.00</h2>
+                    <div id="portfolio-value-change" class="small text-success">
+                        <i class="fas fa-caret-up"></i> 0.00%
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3 mb-md-0">
+            <div class="card shadow-sm h-100">
+                <div class="card-body text-center">
+                    <h6 class="text-muted mb-2">Average APY</h6>
+                    <h2 class="mb-2" id="portfolio-avg-apy">0.00%</h2>
+                    <div id="portfolio-apy-compare" class="small text-muted">
+                        vs. market: <span class="text-success">0.00%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3 mb-md-0">
+            <div class="card shadow-sm h-100">
+                <div class="card-body text-center">
+                    <h6 class="text-muted mb-2">Projected Annual Yield</h6>
+                    <h2 class="mb-2" id="portfolio-annual-yield">$0.00</h2>
+                    <div id="portfolio-yield-monthly" class="small text-muted">
+                        $0.00/month
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card shadow-sm h-100">
+                <div class="card-body text-center">
+                    <h6 class="text-muted mb-2">Risk Score</h6>
+                    <h2 class="mb-2" id="portfolio-risk-score">5.0</h2>
+                    <div id="portfolio-risk-level" class="small text-muted">
+                        Medium Risk
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Portfolio Content -->
+    <div class="row">
+        <!-- Left Column -->
+        <div class="col-md-8 mb-4 mb-md-0">
+            <!-- Portfolio Performance -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">Portfolio Performance</h5>
+                    <div class="btn-group btn-group-sm" role="group">
+                        <button type="button" class="btn btn-outline-primary" data-timeframe="1w">1W</button>
+                        <button type="button" class="btn btn-outline-primary" data-timeframe="1m">1M</button>
+                        <button type="button" class="btn btn-outline-primary" data-timeframe="3m">3M</button>
+                        <button type="button" class="btn btn-outline-primary active" data-timeframe="1y">1Y</button>
+                        <button type="button" class="btn btn-outline-primary" data-timeframe="all">All</button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container" style="position: relative; height: 300px;">
+                        <canvas id="portfolioPerformanceChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Active Strategies -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">Active Strategies</h5>
+                    <button class="btn btn-sm btn-primary" id="addStrategyBtn">
+                        <i class="fas fa-plus me-1"></i>Add Strategy
+                    </button>
+                </div>
+                <div class="card-body p-0">
+                    <div id="no-strategies" class="text-center py-5 d-none">
+                        <i class="fas fa-briefcase fa-3x text-muted mb-3"></i>
+                        <h5 class="mb-3">No Active Strategies</h5>
+                        <p class="text-muted mb-3">Your portfolio is empty. Add strategies to start tracking performance.</p>
+                        <button class="btn btn-primary" id="browseOpportunitiesBtn">
+                            <i class="fas fa-search me-2"></i>Browse Opportunities
+                        </button>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0" id="strategiesTable">
+                            <thead class="table-light">
+                                <tr>
+                                    <th scope="col">Project & Asset</th>
+                                    <th scope="col">Chain</th>
+                                    <th scope="col">Invested</th>
+                                    <th scope="col">Current Value</th>
+                                    <th scope="col">APY</th>
+                                    <th scope="col">ROI</th>
+                                    <th scope="col">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="strategiesTableBody">
+                                <tr>
+                                    <td colspan="7" class="text-center py-4">
+                                        <div class="loading-spinner mb-3"></div>
+                                        <p class="text-muted">Loading strategies...</p>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column -->
+        <div class="col-md-4">
+            <!-- Portfolio Allocation -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Allocation</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="nav nav-pills nav-fill mb-3" id="allocation-tabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="chains-tab" data-bs-toggle="pill" data-bs-target="#chains-content" type="button" role="tab" aria-controls="chains-content" aria-selected="true">Chains</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="projects-tab" data-bs-toggle="pill" data-bs-target="#projects-content" type="button" role="tab" aria-controls="projects-content" aria-selected="false">Projects</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="assets-tab" data-bs-toggle="pill" data-bs-target="#assets-content" type="button" role="tab" aria-controls="assets-content" aria-selected="false">Assets</button>
+                        </li>
+                    </ul>
+                    <div class="tab-content" id="allocation-content">
+                        <div class="tab-pane fade show active" id="chains-content" role="tabpanel" aria-labelledby="chains-tab">
+                            <div class="chart-container" style="position: relative; height: 200px;">
+                                <canvas id="chainAllocationChart"></canvas>
+                            </div>
+                        </div>
+                        <div class="tab-pane fade" id="projects-content" role="tabpanel" aria-labelledby="projects-tab">
+                            <div class="chart-container" style="position: relative; height: 200px;">
+                                <canvas id="projectAllocationChart"></canvas>
+                            </div>
+                        </div>
+                        <div class="tab-pane fade" id="assets-content" role="tabpanel" aria-labelledby="assets-tab">
+                            <div class="chart-container" style="position: relative; height: 200px;">
+                                <canvas id="assetAllocationChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Portfolio Risk Analysis -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Risk Analysis</h5>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container" style="position: relative; height: 200px;">
+                        <canvas id="riskAnalysisChart"></canvas>
+                    </div>
+                    <hr>
+                    <div id="risk-summary">
+                        <div class="text-center py-4">
+                            <div class="loading-spinner mb-3"></div>
+                            <p class="text-muted">Analyzing risk profile...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Portfolio Optimization -->
+            <div class="card shadow-sm">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">Optimization Tips</h5>
+                    <button class="btn btn-sm btn-outline-primary" id="refreshTipsBtn">
+                        <i class="fas fa-sync-alt me-1"></i>Refresh
+                    </button>
+                </div>
+                <div class="card-body">
+                    <div id="optimization-tips">
+                        <div class="text-center py-4">
+                            <div class="loading-spinner mb-3"></div>
+                            <p class="text-muted">Generating optimization tips...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Strategy Detail Modal -->
+<div class="modal fade" id="strategyDetailModal" tabindex="-1" aria-labelledby="strategyDetailModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="strategyDetailModalLabel">Strategy Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label text-muted">Project</label>
+                            <div id="strategy-detail-project" class="fs-5">-</div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label text-muted">Chain</label>
+                            <div id="strategy-detail-chain" class="fs-5">-</div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label text-muted">Asset</label>
+                            <div id="strategy-detail-asset" class="fs-5">-</div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label text-muted">Current APY</label>
+                            <div id="strategy-detail-apy" class="fs-5 text-success">-</div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label text-muted">Initial Investment</label>
+                            <div id="strategy-detail-initial" class="fs-5">-</div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label text-muted">Current Value</label>
+                            <div id="strategy-detail-current" class="fs-5">-</div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label text-muted">Start Date</label>
+                            <div id="strategy-detail-date" class="fs-5">-</div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label text-muted">Compound Frequency</label>
+                            <div id="strategy-detail-compound" class="fs-5">-</div>
+                        </div>
+                    </div>
+                </div>
+                <hr>
+                <div class="row">
+                    <div class="col-md-12">
+                        <h6>Performance</h6>
+                        <div class="chart-container" style="position: relative; height: 200px;">
+                            <canvas id="strategyPerformanceChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-danger" id="removeStrategyBtn">Remove Strategy</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Confirm Remove Strategy Modal -->
+<div class="modal fade" id="confirmRemoveModal" tabindex="-1" aria-labelledby="confirmRemoveModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmRemoveModalLabel">Confirm Remove Strategy</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to remove this strategy from your portfolio?</p>
+                <p class="mb-0">This action cannot be undone.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger" id="confirmRemoveBtn">Remove Strategy</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize portfolio page
+    loadPortfolioData();
+    
+    // Setup event listeners
+    document.getElementById('addStrategyBtn').addEventListener('click', function() {
+        window.location.href = '/market';
+    });
+    
+    document.getElementById('browseOpportunitiesBtn').addEventListener('click', function() {
+        window.location.href = '/market';
+    });
+    
+    document.getElementById('refreshTipsBtn').addEventListener('click', function() {
+        loadOptimizationTips();
+    });
+    
+    // Setup timeframe buttons
+    document.querySelectorAll('[data-timeframe]').forEach(button => {
+        button.addEventListener('click', function() {
+            // Remove active class from all buttons
+            document.querySelectorAll('[data-timeframe]').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Add active class to clicked button
+            this.classList.add('active');
+            
+            // Update chart with selected timeframe
+            const timeframe = this.getAttribute('data-timeframe');
+            loadPortfolioPerformance(timeframe);
+        });
+    });
+});
+
+// Function to load portfolio data
+function loadPortfolioData() {
+    // Implementation would fetch from API
+    console.log('Loading portfolio data...');
+}
+</script>
+{% endblock %} 

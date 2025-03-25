@@ -1,0 +1,12 @@
+{
+  "summary": "1. The Demo Portfolio showcases a diversified approach to yield farming with investments in low, medium, and high-risk strategies across different DeFi protocols. The portfolio's expected ROI of 13.08% outperforms traditional investment options.\n\n2. The portfolio strikes a balance between risk and reward, with higher APYs in riskier strategies such as Orca - MNDE-SOL, offsetting the lower-risk Marinade - SOL. However, investors should monitor the high-risk allocation in Orca closely to manage potential downside.\n\n3. Consider diversifying into additional low to medium-risk strategies to further spread risk exposure and enhance overall portfolio stability.\n\n4. A notable strength of the current allocation is the weighted APY of 12.14%, which indicates a solid potential for yield generation across the portfolio while managing risk levels effectively.",
+  "portfolio_name": "Demo Portfolio",
+  "strategies_analyzed": 3,
+  "timestamp": "2025-03-24T19:51:00.802562",
+  "stats": {
+    "total_investment": 3500,
+    "total_value": 3957.676525767052,
+    "roi": 13.07647216477292,
+    "weighted_apy": 12.142857142857142
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "summary": "1. Overall, the DeFi yield farming market shows healthy APY rates with moderate risks, indicating stable opportunities for yield farmers.\n2. Best opportunities by risk level:\n   - Low Risk: None listed, all opportunities are classified as medium risk.\n   - Medium Risk: orca - SOL-ORCA with 143.80% APY stands out with a relatively higher return compared to others in the same risk category.\n3. Notable trend: Raydium-amm pools are prominent in the market, offering competitive APY rates and attracting significant TVL.\n4. Cautionary note: Despite the enticing APY rates, yield farmers should monitor the liquidity and overall health of the platforms to mitigate potential risks associated with impermanent loss and smart contract vulnerabilities.",
+  "opportunities_analyzed": 20,
+  "timestamp": "2025-03-24T19:51:00.773869",
+  "stats": {
+    "avg_apy": 108.600836,
+    "total_tvl": 34296588,
+    "risk_distribution": {
+      "Medium": 20
+    }
+  }
+}

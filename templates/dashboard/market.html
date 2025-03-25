@@ -1,0 +1,317 @@
+{% extends "base.html" %}
+
+{% block title %}Market Data - HiramAbiff Yield Dashboard{% endblock %}
+
+{% block content %}
+<div id="market-view" class="dashboard-view">
+    <!-- Market Summary Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3 mb-md-0">
+            <div class="card shadow-sm h-100">
+                <div class="card-body text-center">
+                    <h6 class="text-muted mb-2">Total TVL</h6>
+                    <h2 class="mb-2" id="market-total-tvl">$0.00</h2>
+                    <div id="market-tvl-change" class="small text-success">
+                        <i class="fas fa-caret-up"></i> 0.00%
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3 mb-md-0">
+            <div class="card shadow-sm h-100">
+                <div class="card-body text-center">
+                    <h6 class="text-muted mb-2">Avg. APY</h6>
+                    <h2 class="mb-2" id="market-avg-apy">0.00%</h2>
+                    <div id="market-apy-change" class="small text-success">
+                        <i class="fas fa-caret-up"></i> 0.00%
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3 mb-md-0">
+            <div class="card shadow-sm h-100">
+                <div class="card-body text-center">
+                    <h6 class="text-muted mb-2">Total Pools</h6>
+                    <h2 class="mb-2" id="market-total-pools">0</h2>
+                    <div class="small text-muted">
+                        Across <span id="market-chains-count">0</span> chains
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card shadow-sm h-100">
+                <div class="card-body text-center">
+                    <h6 class="text-muted mb-2">Market Trend</h6>
+                    <h2 class="mb-2" id="market-trend"><i class="fas fa-arrow-up text-success"></i></h2>
+                    <div class="small text-muted" id="market-trend-text">
+                        Bullish
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Market Trends -->
+    <div class="row mb-4">
+        <div class="col-md-6 mb-4 mb-md-0">
+            <div class="card shadow-sm h-100">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">TVL Trend</h5>
+                    <div class="btn-group btn-group-sm" role="group">
+                        <button type="button" class="btn btn-outline-primary" data-market-timeframe="1w">1W</button>
+                        <button type="button" class="btn btn-outline-primary active" data-market-timeframe="1m">1M</button>
+                        <button type="button" class="btn btn-outline-primary" data-market-timeframe="3m">3M</button>
+                        <button type="button" class="btn btn-outline-primary" data-market-timeframe="1y">1Y</button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container" style="position: relative; height: 250px;">
+                        <canvas id="tvlTrendChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card shadow-sm h-100">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">APY Trend</h5>
+                    <div class="btn-group btn-group-sm" role="group">
+                        <button type="button" class="btn btn-outline-primary" data-market-timeframe="1w">1W</button>
+                        <button type="button" class="btn btn-outline-primary active" data-market-timeframe="1m">1M</button>
+                        <button type="button" class="btn btn-outline-primary" data-market-timeframe="3m">3M</button>
+                        <button type="button" class="btn btn-outline-primary" data-market-timeframe="1y">1Y</button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container" style="position: relative; height: 250px;">
+                        <canvas id="apyTrendChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Market Distribution -->
+    <div class="row mb-4">
+        <div class="col-md-6 mb-4 mb-md-0">
+            <div class="card shadow-sm h-100">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Top Chains by TVL</h5>
+                </div>
+                <div class="card-body">
+                    <div id="top-chains-list">
+                        <div class="text-center py-4">
+                            <div class="loading-spinner mb-3"></div>
+                            <p class="text-muted">Loading chain data...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card shadow-sm h-100">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Top Projects by TVL</h5>
+                </div>
+                <div class="card-body">
+                    <div id="top-projects-list">
+                        <div class="text-center py-4">
+                            <div class="loading-spinner mb-3"></div>
+                            <p class="text-muted">Loading project data...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Opportunities Table -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-header">
+            <div class="d-flex justify-content-between align-items-center flex-wrap">
+                <h5 class="card-title mb-0">Yield Opportunities</h5>
+                <div class="d-flex align-items-center mt-2 mt-md-0">
+                    <div class="input-group me-2" style="width: 200px;">
+                        <span class="input-group-text"><i class="fas fa-search"></i></span>
+                        <input type="text" class="form-control" id="searchOpportunities" placeholder="Search...">
+                    </div>
+                    <button class="btn btn-primary" id="openFilters">
+                        <i class="fas fa-filter me-1"></i>Filters
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="card-body p-0">
+            <!-- Filters (Initially Hidden) -->
+            <div id="filtersContainer" class="p-3 border-bottom" style="display: none;">
+                <div class="row">
+                    <div class="col-md-2 mb-3">
+                        <label for="chainFilter" class="form-label">Chain</label>
+                        <select id="chainFilter" class="form-select">
+                            <option value="">All Chains</option>
+                            <option value="ethereum">Ethereum</option>
+                            <option value="solana">Solana</option>
+                            <option value="polygon">Polygon</option>
+                            <option value="avalanche">Avalanche</option>
+                            <option value="binance">Binance Smart Chain</option>
+                            <option value="fantom">Fantom</option>
+                            <option value="arbitrum">Arbitrum</option>
+                            <option value="optimism">Optimism</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2 mb-3">
+                        <label for="projectFilter" class="form-label">Project</label>
+                        <select id="projectFilter" class="form-select">
+                            <option value="">All Projects</option>
+                            <option value="aave">Aave</option>
+                            <option value="compound">Compound</option>
+                            <option value="curve">Curve</option>
+                            <option value="yearn">Yearn</option>
+                            <option value="marinade">Marinade</option>
+                            <option value="lido">Lido</option>
+                            <option value="benqi">Benqi</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2 mb-3">
+                        <label for="minApyFilter" class="form-label">Min APY (%)</label>
+                        <input type="number" id="minApyFilter" class="form-control" value="0" min="0">
+                    </div>
+                    <div class="col-md-2 mb-3">
+                        <label for="minTvlFilter" class="form-label">Min TVL ($)</label>
+                        <input type="number" id="minTvlFilter" class="form-control" value="0" min="0">
+                    </div>
+                    <div class="col-md-2 mb-3">
+                        <label for="maxRiskFilter" class="form-label">Max Risk (1-10)</label>
+                        <input type="range" id="maxRiskFilter" class="form-range" min="1" max="10" value="10">
+                        <div class="d-flex justify-content-between">
+                            <small>Low</small>
+                            <small id="riskValue">10</small>
+                            <small>High</small>
+                        </div>
+                    </div>
+                    <div class="col-md-2 mb-3">
+                        <label for="limitFilter" class="form-label">Results</label>
+                        <select id="limitFilter" class="form-select">
+                            <option value="10">10</option>
+                            <option value="20" selected>20</option>
+                            <option value="50">50</option>
+                            <option value="100">100</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="d-flex justify-content-end">
+                    <button id="resetFilters" class="btn btn-outline-secondary me-2">Reset</button>
+                    <button id="applyFilters" class="btn btn-primary">Apply Filters</button>
+                </div>
+            </div>
+
+            <!-- Opportunities Table -->
+            <div class="table-responsive">
+                <table class="table table-hover mb-0" id="opportunitiesTable">
+                    <thead class="table-light">
+                        <tr>
+                            <th scope="col">Project</th>
+                            <th scope="col"><a href="#" data-sort="chain" class="text-decoration-none text-dark">Chain <i class="fas fa-sort ms-1"></i></a></th>
+                            <th scope="col">Asset</th>
+                            <th scope="col"><a href="#" data-sort="apy" class="text-decoration-none text-dark active">APY <i class="fas fa-sort-down ms-1"></i></a></th>
+                            <th scope="col"><a href="#" data-sort="tvl" class="text-decoration-none text-dark">TVL <i class="fas fa-sort ms-1"></i></a></th>
+                            <th scope="col"><a href="#" data-sort="risk" class="text-decoration-none text-dark">Risk <i class="fas fa-sort ms-1"></i></a></th>
+                            <th scope="col">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="opportunitiesTableBody">
+                        <tr>
+                            <td colspan="7" class="text-center py-4">
+                                <div class="loading-spinner mb-3"></div>
+                                <p class="text-muted">Loading opportunities...</p>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Market Chain Detail Modal -->
+<div class="modal fade" id="chainDetailModal" tabindex="-1" aria-labelledby="chainDetailModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="chainDetailModalLabel">Chain Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="chainDetailContent">
+                    <div class="text-center py-4">
+                        <div class="loading-spinner mb-3"></div>
+                        <p class="text-muted">Loading chain details...</p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="viewChainOpportunities">View Opportunities</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Market Project Detail Modal -->
+<div class="modal fade" id="projectDetailModal" tabindex="-1" aria-labelledby="projectDetailModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="projectDetailModalLabel">Project Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="projectDetailContent">
+                    <div class="text-center py-4">
+                        <div class="loading-spinner mb-3"></div>
+                        <p class="text-muted">Loading project details...</p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="viewProjectOpportunities">View Opportunities</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Show/hide filters
+    document.getElementById('openFilters').addEventListener('click', function() {
+        const filtersContainer = document.getElementById('filtersContainer');
+        if (filtersContainer.style.display === 'none') {
+            filtersContainer.style.display = 'block';
+        } else {
+            filtersContainer.style.display = 'none';
+        }
+    });
+    
+    // Update risk value display
+    document.getElementById('maxRiskFilter').addEventListener('input', function() {
+        document.getElementById('riskValue').textContent = this.value;
+    });
+    
+    // Reset filters
+    document.getElementById('resetFilters').addEventListener('click', function() {
+        document.getElementById('chainFilter').value = '';
+        document.getElementById('projectFilter').value = '';
+        document.getElementById('minApyFilter').value = 0;
+        document.getElementById('minTvlFilter').value = 0;
+        document.getElementById('maxRiskFilter').value = 10;
+        document.getElementById('riskValue').textContent = '10';
+        document.getElementById('limitFilter').value = 20;
+        document.getElementById('searchOpportunities').value = '';
+    });
+});
+</script>
+{% endblock %} 
